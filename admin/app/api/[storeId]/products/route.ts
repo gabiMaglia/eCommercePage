@@ -21,17 +21,18 @@ export async function POST(
         
         if (!params.storeId) return new NextResponse("StoreId is required", { status: 400 });
         
-      
-
+        
+        
         const storeByUserId = await prismadb.store.findFirst({
             where: {
                 id: params.storeId,
                 userId
             }
         })
-
+        
         if (!storeByUserId) return new NextResponse("Unauthorized", { status: 403 });
-
+        console.log('object')
+        
         const product = await prismadb.product.create({
             data: {
                name, 
@@ -45,13 +46,13 @@ export async function POST(
                     ]
                 }
                }, 
-               color: {
-                createMany: {
-                    data:[ 
-                        ...colors.map((color: { url:string}) => color)
-                    ]
-                }
-               }, 
+            //    color: {
+            //     createMany: {
+            //         data:[ 
+            //             ...colors.map((color: { url:string}) => color)
+            //         ]
+            //     }
+            //    }, 
                isFeatured, 
                isArchived ,
                
