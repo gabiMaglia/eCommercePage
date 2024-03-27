@@ -1,16 +1,16 @@
 export interface Billboard {
-    id : string;
-    label : string;
+    id: string;
+    label: string;
     imageUrl: string;
 };
 
 export interface Category {
-    name: any;
     id: string;
+    name: any;
     billBoard: Billboard;
 }
 export interface Product {
-    id:string;
+    id: string;
     category: Category;
     brand: Brand
     name: String;
@@ -23,8 +23,8 @@ export interface Brand {
     name: string
 }
 export interface Images {
- id: string
- url: string
+    id: string
+    url: string
 }
 export interface Color {
     id: string
