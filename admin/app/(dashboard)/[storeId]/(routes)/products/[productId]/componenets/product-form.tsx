@@ -1,9 +1,9 @@
 "use client";
 
 import * as z from "zod";
-import { Brand, Category, Color, Image, Product } from "@prisma/client";
+import { Brand, Category, Color, Stock, Image, Product } from "@prisma/client";
 import { Trash } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,8 +38,9 @@ import {
 const formSchema = z.object({
   name: z.string().min(1),
   images: z.object({ url: z.string() }).array(),
-  // color: z.object({ value: z.string() }).array(),
+  //  colors: z.array(z.string().min(1, "Se requiere al menos un color")).optional(),
   price: z.coerce.number().min(1),
+  quantity: z.coerce.number(),
   categoryId: z.string().min(1),
   brandId: z.string().min(1),
   isFeatured: z.boolean().default(false).optional(),
@@ -53,21 +54,22 @@ interface ProductFormProps {
         images: Image[];
       })
     | null;
-   
+
   categories: Category[];
   // colors: Color[]
+  stock: Stock
   brand: Brand[];
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
+  stock,
   // colors,
   brand,
 }) => {
   const params = useParams();
   const router = useRouter();
-
 
   const [open, setOpen] = useState(false);
   const [loading, setloading] = useState(false);
@@ -87,7 +89,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       : {
           name: "",
           images: [],
-          // color: [],
+          // colors: initialData ? initialData.colors : [""],
+          // color: [""],
+          quantity: 0,
           price: 0,
           categoryId: "",
           brandId: "",
@@ -95,7 +99,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           isArchived: false,
         },
   });
-
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setloading(true);
@@ -103,16 +106,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         await axios.patch(
           `/api/${params.storeId}/products/${params.productId}`,
           data
-          );
-        } else {
-          await axios.post(`/api/${params.storeId}/products`, data);
-        }
-        toast.success(toastMessage);
-        router.push(`/${params.storeId}/products`);
-        router.refresh();
-      } catch (error) {
-        console.log({error: error})
-        
+        );
+      } else {
+        await axios.post(`/api/${params.storeId}/products`, data);
+      }
+      toast.success(toastMessage);
+      router.push(`/${params.storeId}/products`);
+      router.refresh();
+    } catch (error) {
+      console.log({ error: error });
+
       toast.error("Something went wrong");
     } finally {
       setloading(false);
@@ -121,9 +124,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onDelete = async () => {
     try {
       setloading(true);
-      await axios.delete(
-        `/api/${params.storeId}/products/${params.productId}`
-      );
+      await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
       toast.success("Products Deleted");
       router.push(`/${params.storeId}/products`);
       router.refresh();
@@ -162,18 +163,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           className="space-y-8 w-full"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-     <FormField
+          <FormField
             control={form.control}
             name="images"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Images</FormLabel>
                 <FormControl>
-                  <ImageUpload 
-                    value={field.value.map((image) => image.url)} 
-                    disable={loading} 
-                    onChange={(url) => field.onChange([...field.value, { url }])}
-                    onRemove={(url) => field.onChange([...field.value.filter((current) => current.url !== url)])}
+                  <ImageUpload
+                    value={field.value.map((image) => image.url)}
+                    disable={loading}
+                    onChange={(url) =>
+                      field.onChange([...field.value, { url }])
+                    }
+                    onRemove={(url) =>
+                      field.onChange([
+                        ...field.value.filter((current) => current.url !== url),
+                      ])
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -216,6 +223,42 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel> Stock </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="0"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* <FormField
+              control={form.control}
+              name="colors"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel> Color </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="string"
+                      disabled={loading}
+                      placeholder="Product Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
             <FormField
               control={form.control}
               name="categoryId"
@@ -300,7 +343,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-                        <FormField
+            <FormField
               control={form.control}
               name="isArchived"
               render={({ field }) => (
