@@ -32,14 +32,15 @@ const ProductPage = async({
         where: {productId: params.productId}
     })
 
-    console.log(stock)
+    const quantity : number | undefined = stock?.quantity
+    
     return (  
         <div className="flex-col">
             <div className="flex-1 space-y-4 p-8 pt-6">
             <ProductForm 
             categories={categories}
             brand={brand}
-            stock={stock}
+            stock={quantity}
             // color={color}
             initialData={product}
             />

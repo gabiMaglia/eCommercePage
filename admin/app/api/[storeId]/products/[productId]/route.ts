@@ -32,10 +32,11 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
 
         const body = await req.json()
 
-        const { name, price, categoryId, brandId, color, images, isFeatured, isArchived } = body
+        const { name, price, categoryId, brandId, color, quantity, images, isFeatured, isArchived } = body
 
         if (!name) return new NextResponse("Name is required", { status: 400 });
         if (!price) return new NextResponse("Price is required", { status: 400 });
+        if (!quantity) return new NextResponse("Quantity is required", { status: 400 });
         if (!categoryId) return new NextResponse("categoryId is required", { status: 400 });
         if (!brandId) return new NextResponse("brandId is required", { status: 400 });
 
@@ -60,6 +61,11 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                 brandId,
                 images: {
                     deleteMany: {}
+                },
+                stock: {
+                    update:{
+                        quantity,
+                    }
                 },
                 isFeatured,
                 isArchived
