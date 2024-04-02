@@ -115,6 +115,7 @@ model Product {
   isFeatured Boolean     @default(false)
   isArchived Boolean     @default(false)
   
+  
   stock Stock?
   colors Color[]
   images Image[]

@@ -32,11 +32,12 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
 
         const body = await req.json()
 
-        const { name, price, categoryId, brandId, color, quantity, images, isFeatured, isArchived } = body
-
+        const { name, price, categoryId, brandId, color, stock,  images, isFeatured, isArchived } = body
+        
+        console.log(body)
         if (!name) return new NextResponse("Name is required", { status: 400 });
         if (!price) return new NextResponse("Price is required", { status: 400 });
-        if (!quantity) return new NextResponse("Quantity is required", { status: 400 });
+        if (!stock) return new NextResponse("Stock is required", { status: 400 });
         if (!categoryId) return new NextResponse("categoryId is required", { status: 400 });
         if (!brandId) return new NextResponse("brandId is required", { status: 400 });
 
@@ -49,7 +50,6 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
             }
         })
         if (!storeByUserId) return new NextResponse("Unauthorized", { status: 403 });
-
         await prismadb.product.update({
             where: {
                 id: params.productId,
@@ -64,13 +64,14 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                 },
                 stock: {
                     update:{
-                        quantity,
+                        quantity :stock,
                     }
                 },
                 isFeatured,
                 isArchived
             }
         })
+
 
         const product = await prismadb.product.update({
             where: {
@@ -85,8 +86,7 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                     }
                 }
             }
-        })
-
+        })  
         return NextResponse.json(product)
     } catch (error) {
         console.log("PRODUCT_PATCH", error)
