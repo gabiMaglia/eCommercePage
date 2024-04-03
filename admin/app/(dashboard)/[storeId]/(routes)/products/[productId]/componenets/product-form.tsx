@@ -1,7 +1,7 @@
 "use client";
 
 import * as z from "zod";
-import { Brand, Category, Color, Stock, Image, Product } from "@prisma/client";
+import { Brand, Category, Color, Image, Product } from "@prisma/client";
 import { Trash } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +38,12 @@ import {
 const formSchema = z.object({
   name: z.string().min(1),
   images: z.object({ url: z.string() }).array(),
-  colors: z.array(z.string()).optional(),
+  colors: z.array(
+    z.object({
+      value: z.string(),
+      stock: z.string(),
+    })
+  ),
   price: z.coerce.number().min(1),
   stock: z.coerce.number(),
   categoryId: z.string().min(1),
@@ -56,7 +61,7 @@ interface ProductFormProps {
     | null;
 
   categories: Category[];
-  stock: number | undefined;
+  stock: string | number | undefined;
   colors: Color[];
   brand: Brand[];
 }
@@ -64,7 +69,6 @@ interface ProductFormProps {
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
-  stock,
   colors,
   brand,
 }) => {
@@ -72,8 +76,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const router = useRouter();
 
   const [colorArr, setColors] = useState(() =>
-  initialData ? colors.map((color) => color.value) : ["#ffffff"]
-);
+    initialData ? colors.map((color) => color.value) : ["#ffffff"]
+  );
+  const [stockPerColorArr, setStockPerColors] = useState(() =>
+    initialData ? colors.map((color) => color.stock) : ["0"]
+  );
+  const [totalStock, setTotalStock] = useState(() =>
+    initialData
+      ?  stockPerColorArr.reduce((stock: any, acc: any) => {
+        return Number(acc) + Number(stock);
+      })
+      : 0
+  );
 
   const [open, setOpen] = useState(false);
   const [loading, setloading] = useState(false);
@@ -82,8 +96,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const description = initialData ? "Edit Products" : "Add a new Products";
   const toastMessage = initialData ? "Products Updated" : "Products Created";
   const action = initialData ? "Save changes" : "Create";
- 
- 
+
+
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
@@ -91,13 +105,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ? {
           ...initialData,
           price: parseFloat(String(initialData?.price)),
-          stock,
-          colors: colors.map(color => color.value),
+          stock: Number(totalStock),
+          colors: colors.map((color) => ({
+            value: color.value,
+            stock: color.stock,
+          })),
         }
       : {
           name: "",
           images: [],
-          // colors: initialData ? initialData.colors : [""],
           colors: [],
           stock: 0,
           price: 0,
@@ -108,8 +124,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         },
   });
   const onSubmit = async (data: ProductFormValues) => {
-    data = {...data, colors: colorArr}
-    console.log(data)
+    const colorsData = colorArr.map((color: string, index: number) => ({
+      value: color,
+      stock: stockPerColorArr[index],
+    }));
+    data = { ...data, colors: colorsData };
+
     try {
       setloading(true);
       if (initialData) {
@@ -148,16 +168,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleAddColor = (): void => {
     setColors([...colorArr, "#ffffff"]);
+    setStockPerColors([...stockPerColorArr, "0"]);
   };
   const handleRemoveColor = (): void => {
-    colorArr.pop()
-    setColors([...colorArr]); 
+    colorArr.pop();
+    setColors([...colorArr]);
+    stockPerColorArr.pop();
+    setStockPerColors([...stockPerColorArr]);
   };
 
   const handleChangeColor = (color: string, index: number): void => {
     const newColors = [...colorArr];
     newColors[index] = color;
     setColors(newColors);
+  };
+  const handleChangeStock = (newStockValue: string, index: number): void => {
+    const updatedStockPerColorArr = [...stockPerColorArr];
+    updatedStockPerColorArr[index] = newStockValue;
+    setStockPerColors(updatedStockPerColorArr);
+
+    const newTotalStock = updatedStockPerColorArr.reduce((acc, curr) => acc + Number(curr), 0);
+    setTotalStock(newTotalStock);
+
+    form.setValue('stock', newTotalStock);
   };
 
   return (
@@ -256,9 +289,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={true}
                       placeholder="0"
                       {...field}
+
                     />
                   </FormControl>
                   <FormMessage />
@@ -267,41 +301,54 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
             <div>
               <FormField
-               control={form.control}
-               name="colors"
-               render={({ field }) => (
-              <FormItem>
-                <FormLabel> Colors </FormLabel>
-                <div className="flex flex-wrap gap-2">
-                {colorArr.map((color, index) => (
-                  <div key={index} className="flex items-center space-x-2 mb-2">
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={(e) => handleChangeColor(e.target.value, index)}
-                      className="w-5 h-5 border-slate-950 rounded-full cursor-pointer"
-                    />
-                  </div>
-                ))}
-                </div>
-                <div className="flex gap-2">
-                <Button
-                  onClick={handleAddColor}
-                  className="w-2 h-7 grid content-center text-white rounded"
-                  type="button"
-                  >
-                  +
-                </Button>
-                <Button
-                  onClick={handleRemoveColor}
-                  className="w-2 h-7 grid content-center text-white rounded"
-                  type="button"
-                  >
-                  -
-                </Button>
-                </div>
-              </FormItem>
-              )}
+                control={form.control}
+                name="colors"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel> Colors </FormLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {colorArr.map((color: string, index: number) => (
+                        <div
+                          key={index}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <input
+                            type="color"
+                            value={color}
+                            onChange={(e) =>
+                              handleChangeColor(e.target.value, index)
+                            }
+                            className="w-6 h-6  border-slate-950 rounded-full cursor-pointer"
+                          />
+                          <Input
+                            type="number"
+                            value={stockPerColorArr[index]}
+                            onChange={(e) =>
+                              handleChangeStock(e.target.value, index)
+                            }
+                            className="w-20 border-slate-450 rounded"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleAddColor}
+                        className="w-2 h-7 grid content-center text-white rounded"
+                        type="button"
+                      >
+                        +
+                      </Button>
+                      <Button
+                        onClick={handleRemoveColor}
+                        className="w-2 h-7 grid content-center text-white rounded"
+                        type="button"
+                      >
+                        -
+                      </Button>
+                    </div>
+                  </FormItem>
+                )}
               />
             </div>
             <FormField

@@ -18,7 +18,7 @@ export async function GET(_req: Request, { params }: { params: { productId: stri
                 colors: true
             }
         })
-        
+
         return NextResponse.json(product)
     } catch (error) {
         console.log("PRODUCT_GET", error)
@@ -33,11 +33,12 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
 
         const body = await req.json()
 
-        const { name, price, categoryId, brandId, colors, stock,  images, isFeatured, isArchived } = body
-        
-        
+        const { name, price, categoryId, brandId, colors, stock, images, isFeatured, isArchived } = body
+
+
         if (!name) return new NextResponse("Name is required", { status: 400 });
         if (!price) return new NextResponse("Price is required", { status: 400 });
+        if (!colors) return new NextResponse("Colors is required", { status: 400 });
         if (!stock) return new NextResponse("Stock is required", { status: 400 });
         if (!categoryId) return new NextResponse("categoryId is required", { status: 400 });
         if (!brandId) return new NextResponse("brandId is required", { status: 400 });
@@ -67,11 +68,11 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                     deleteMany: {}
                 },
                 stock: {
-                    update:{
-                        quantity :stock,
+                    update: {
+                        quantity: stock,
                     }
                 },
-              
+
                 isFeatured,
                 isArchived
             }
@@ -91,10 +92,13 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                     }
                 },
                 colors: {
-                    create: colors.map((color: string) => ({ value: color })),
+                    create: colors.map((color: { value: string; stock: { toString: () => string; }; }) => ({
+                      value: color.value,
+                      stock: color.stock.toString()
+                    })),
                   },
             }
-        })  
+        })
         return NextResponse.json(product)
     } catch (error) {
         console.log("PRODUCT_PATCH", error)

@@ -34,7 +34,7 @@ export async function POST(
         
         if (!storeByUserId) return new NextResponse("Unauthorized", { status: 403 });
       
-        
+        console.log({Color: colors})  
         const product = await prismadb.product.create({
             data: {
                name, 
@@ -54,12 +54,13 @@ export async function POST(
                 }
                }, 
                colors: {
-                create: colors.map((colorValue: string) => ({
-                  value: colorValue
-                }))
+                create: colors.map((color: { value: string; stock: { toString: () => string; }; }) => ({
+                  value: color.value,
+                  stock: color.stock.toString()
+                })),
               },
                isFeatured, 
-               isArchived ,
+               isArchived,
                
                storeId: params.storeId
 

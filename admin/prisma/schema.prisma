@@ -69,7 +69,10 @@ model Color {
   id        String   @id @default(uuid())
   productId String
   product   Product  @relation(fields: [productId], references: [id])
+  
   value     String
+  stock     String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -98,6 +101,20 @@ model Stock {
   updatedAt DateTime @updatedAt
 }
 
+model ProductDescription {
+  id        String  @id @default(uuid())
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+ 
+  generalDescription  String @default(" ")
+  caracteristics String
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+
 model Product {
   id         String   @id @default(uuid())
   storeId    String
@@ -105,17 +122,19 @@ model Product {
   categoryId String
   category   Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
 
-  name       String
-  price      Decimal
-  brandId    String
-  brand      Brand       @relation(fields: [brandId], references: [id])
-  orderItems OrderItem[]
+  name        String
+  price       Decimal
+  brandId     String
+  brand       Brand       @relation(fields: [brandId], references: [id])
+
+  orderItems  OrderItem[]
 
   isFeatured Boolean @default(false)
   isArchived Boolean @default(false)
 
+  productDescription ProductDescription?
   stock  Stock?
-  colors Color[] 
+  colors Color[]
   images Image[]
 
   createdAt DateTime @default(now())
@@ -125,7 +144,6 @@ model Product {
   @@index([categoryId])
   @@index([brandId])
 }
-
 
 model Order {
   id         String      @id @default(uuid())
