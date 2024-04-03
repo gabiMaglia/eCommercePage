@@ -66,11 +66,10 @@ model Brand {
 }
 
 model Color {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
   value     String
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -112,12 +111,11 @@ model Product {
   brand      Brand       @relation(fields: [brandId], references: [id])
   orderItems OrderItem[]
 
-  isFeatured Boolean     @default(false)
-  isArchived Boolean     @default(false)
-  
-  
-  stock Stock?
-  colors Color[]
+  isFeatured Boolean @default(false)
+  isArchived Boolean @default(false)
+
+  stock  Stock?
+  colors Color[] 
   images Image[]
 
   createdAt DateTime @default(now())
@@ -127,6 +125,7 @@ model Product {
   @@index([categoryId])
   @@index([brandId])
 }
+
 
 model Order {
   id         String      @id @default(uuid())

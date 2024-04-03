@@ -14,10 +14,11 @@ export async function GET(_req: Request, { params }: { params: { productId: stri
             include: {
                 images: true,
                 category: true,
-                brand: true
+                brand: true,
+                colors: true
             }
         })
-
+        
         return NextResponse.json(product)
     } catch (error) {
         console.log("PRODUCT_GET", error)
@@ -32,9 +33,9 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
 
         const body = await req.json()
 
-        const { name, price, categoryId, brandId, color, stock,  images, isFeatured, isArchived } = body
+        const { name, price, categoryId, brandId, colors, stock,  images, isFeatured, isArchived } = body
         
-        console.log(body)
+        
         if (!name) return new NextResponse("Name is required", { status: 400 });
         if (!price) return new NextResponse("Price is required", { status: 400 });
         if (!stock) return new NextResponse("Stock is required", { status: 400 });
@@ -62,11 +63,15 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                 images: {
                     deleteMany: {}
                 },
+                colors: {
+                    deleteMany: {}
+                },
                 stock: {
                     update:{
                         quantity :stock,
                     }
                 },
+              
                 isFeatured,
                 isArchived
             }
@@ -84,7 +89,10 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                             ...images.map((image: { url: string }) => image)
                         ]
                     }
-                }
+                },
+                colors: {
+                    create: colors.map((color: string) => ({ value: color })),
+                  },
             }
         })  
         return NextResponse.json(product)

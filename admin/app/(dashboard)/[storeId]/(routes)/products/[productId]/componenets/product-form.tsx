@@ -38,7 +38,7 @@ import {
 const formSchema = z.object({
   name: z.string().min(1),
   images: z.object({ url: z.string() }).array(),
-  //  colors: z.array(z.string().min(1, "Se requiere al menos un color")).optional(),
+  colors: z.array(z.string()).optional(),
   price: z.coerce.number().min(1),
   stock: z.coerce.number(),
   categoryId: z.string().min(1),
@@ -56,8 +56,8 @@ interface ProductFormProps {
     | null;
 
   categories: Category[];
-  stock: number | undefined
-  // colors: Color[]
+  stock: number | undefined;
+  colors: Color[];
   brand: Brand[];
 }
 
@@ -65,11 +65,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
   stock,
-  // colors,
+  colors,
   brand,
 }) => {
   const params = useParams();
   const router = useRouter();
+
+  const [colorArr, setColors] = useState(() =>
+  initialData ? colors.map((color) => color.value) : ["#ffffff"]
+);
 
   const [open, setOpen] = useState(false);
   const [loading, setloading] = useState(false);
@@ -78,6 +82,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const description = initialData ? "Edit Products" : "Add a new Products";
   const toastMessage = initialData ? "Products Updated" : "Products Created";
   const action = initialData ? "Save changes" : "Create";
+ 
+ 
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
@@ -85,14 +91,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ? {
           ...initialData,
           price: parseFloat(String(initialData?.price)),
-          stock
-          
+          stock,
+          colors: colors.map(color => color.value),
         }
       : {
           name: "",
           images: [],
           // colors: initialData ? initialData.colors : [""],
-          // color: [""],
+          colors: [],
           stock: 0,
           price: 0,
           categoryId: "",
@@ -102,6 +108,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         },
   });
   const onSubmit = async (data: ProductFormValues) => {
+    data = {...data, colors: colorArr}
+    console.log(data)
     try {
       setloading(true);
       if (initialData) {
@@ -136,6 +144,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setloading(false);
       setOpen(false);
     }
+  };
+
+  const handleAddColor = (): void => {
+    setColors([...colorArr, "#ffffff"]);
+  };
+  const handleRemoveColor = (): void => {
+    colorArr.pop()
+    setColors([...colorArr]); 
+  };
+
+  const handleChangeColor = (color: string, index: number): void => {
+    const newColors = [...colorArr];
+    newColors[index] = color;
+    setColors(newColors);
   };
 
   return (
@@ -243,24 +265,45 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-            {/* <FormField
-              control={form.control}
-              name="colors"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel> Color </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="string"
-                      disabled={loading}
-                      placeholder="Product Name"
-                      {...field}
+            <div>
+              <FormField
+               control={form.control}
+               name="colors"
+               render={({ field }) => (
+              <FormItem>
+                <FormLabel> Colors </FormLabel>
+                <div className="flex flex-wrap gap-2">
+                {colorArr.map((color, index) => (
+                  <div key={index} className="flex items-center space-x-2 mb-2">
+                    <input
+                      type="color"
+                      value={color}
+                      onChange={(e) => handleChangeColor(e.target.value, index)}
+                      className="w-5 h-5 border-slate-950 rounded-full cursor-pointer"
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </div>
+                ))}
+                </div>
+                <div className="flex gap-2">
+                <Button
+                  onClick={handleAddColor}
+                  className="w-2 h-7 grid content-center text-white rounded"
+                  type="button"
+                  >
+                  +
+                </Button>
+                <Button
+                  onClick={handleRemoveColor}
+                  className="w-2 h-7 grid content-center text-white rounded"
+                  type="button"
+                  >
+                  -
+                </Button>
+                </div>
+              </FormItem>
               )}
-            /> */}
+              />
+            </div>
             <FormField
               control={form.control}
               name="categoryId"

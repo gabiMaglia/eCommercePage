@@ -24,16 +24,15 @@ const ProductPage = async({
     const brand = await prismadb.brand.findMany({
         where: {storeId: params.storeId}
     })
-
-    // const color = await prismadb.color.findMany({
-    //     where: {productId: params.productId}
-    // })
+    const color = await prismadb.color.findMany({
+        where: {productId: params.productId}
+    })
     const stock = await prismadb.stock.findFirst({
         where: {productId: params.productId}
     })
 
     const quantity : number | undefined = stock?.quantity
-    
+
     return (  
         <div className="flex-col">
             <div className="flex-1 space-y-4 p-8 pt-6">
@@ -41,7 +40,7 @@ const ProductPage = async({
             categories={categories}
             brand={brand}
             stock={quantity}
-            // color={color}
+            colors={color}
             initialData={product}
             />
             </div>

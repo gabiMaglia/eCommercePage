@@ -10,16 +10,17 @@ export async function POST(
         const { userId } = auth();
         const body = await req.json();
         if (!userId) return new NextResponse("Unautorized", { status: 401 });
-        
-        const { name, price, categoryId, brandId, colors, quantity, images, isFeatured, isArchived } = body
+
+        const { name, price, categoryId, brandId, colors, stock, images, isFeatured, isArchived } = body
         
         if (!name) return new NextResponse("Name is required", { status: 400 });
         if (!images || !images.length) return new NextResponse("Images is required", { status: 400 });
         if (!price) return new NextResponse("Price is required", { status: 400 });
-        if (!quantity) return new NextResponse("Stock is required", { status: 400 });
+        if (!stock) return new NextResponse("Stock is required", { status: 400 });
         if (!categoryId) return new NextResponse("categoryId is required", { status: 400 });
         if (!brandId) return new NextResponse("brandId is required", { status: 400 });
         
+        if (!colors) return new NextResponse("Color is required", { status: 400 });
         if (!params.storeId) return new NextResponse("StoreId is required", { status: 400 });
         
         
@@ -42,7 +43,7 @@ export async function POST(
                brandId, 
                stock: {
                 create: {
-                    quantity
+                    quantity: stock
                 }
                },
                images: {
@@ -52,13 +53,11 @@ export async function POST(
                     ]
                 }
                }, 
-            //    color: {
-            //     createMany: {
-            //         data:[ 
-            //             ...colors.map((color: { url:string}) => color)
-            //         ]
-            //     }
-            //    }, 
+               colors: {
+                create: colors.map((colorValue: string) => ({
+                  value: colorValue
+                }))
+              },
                isFeatured, 
                isArchived ,
                
@@ -87,7 +86,6 @@ export async function GET(
         const brandId = searchParams.get('brandId') || undefined
         const isFeatured = searchParams.get('isFeaturedId') || undefined
 
-
         if (!params.storeId) return new NextResponse("StoreId is required", { status: 400 });
 
         const products = await prismadb.product.findMany({
@@ -102,10 +100,11 @@ export async function GET(
                 images: true,
                 category: true,
                 brand: true,
-                stock: true
+                stock: true,
+                colors: true
             }
         });
-
+       
         return NextResponse.json(products);
 
     } catch (error) {
