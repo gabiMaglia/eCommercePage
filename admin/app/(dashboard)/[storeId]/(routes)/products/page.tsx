@@ -15,8 +15,8 @@ const ProductsPage = async ({
         include: {
             category: true,
             brand: true,
-            stock: true
-            // color: true
+            stock: true,
+            colors: true
         },
         orderBy: {
             createdAt: 'desc'
@@ -32,10 +32,10 @@ const ProductsPage = async ({
         quantity: Number(item.stock?.quantity),
         category: item.category.name,
         brand: item.brand.name,
-        // color: item.color,
+        color: item.colors.map(e => e.value ),
         createdAt: format(item.createdAt, "MMMM do, yyyy")   
     }))
-   
+  
     return ( 
         <div className="flex-col">
             <div className="flex-1 space-y-4 p-8 pt-6">
