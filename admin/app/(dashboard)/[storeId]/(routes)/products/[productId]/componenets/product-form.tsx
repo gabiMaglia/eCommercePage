@@ -61,7 +61,7 @@ interface ProductFormProps {
     | null;
 
   categories: Category[];
-  stock: string | number | undefined;
+  stock:  number;
   colors: Color[];
   brand: Brand[];
 }
@@ -79,12 +79,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     initialData ? colors.map((color) => color.value) : ["#ffffff"]
   );
   const [stockPerColorArr, setStockPerColors] = useState(() =>
-    initialData ? colors.map((color) => color.stock) : ["0"]
+    initialData ? colors.map((color) => Number(color.stock)) : [0]
   );
   const [totalStock, setTotalStock] = useState(() =>
     initialData
-      ?  stockPerColorArr.reduce((stock: any, acc: any) => {
-        return Number(acc) + Number(stock);
+      ?  stockPerColorArr.reduce((stock, acc) => {
+        return (Number(acc) + Number(stock));
       })
       : 0
   );
@@ -126,7 +126,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     const colorsData = colorArr.map((color: string, index: number) => ({
       value: color,
-      stock: stockPerColorArr[index],
+      stock: (stockPerColorArr[index]).toString(),
     }));
     data = { ...data, colors: colorsData };
 
@@ -168,7 +168,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleAddColor = (): void => {
     setColors([...colorArr, "#ffffff"]);
-    setStockPerColors([...stockPerColorArr, "0"]);
+    setStockPerColors([...stockPerColorArr, 0]);
   };
   const handleRemoveColor = (): void => {
     colorArr.pop();
@@ -184,7 +184,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
   const handleChangeStock = (newStockValue: string, index: number): void => {
     const updatedStockPerColorArr = [...stockPerColorArr];
-    updatedStockPerColorArr[index] = newStockValue;
+    updatedStockPerColorArr[index] = Number(newStockValue);
     setStockPerColors(updatedStockPerColorArr);
 
     const newTotalStock = updatedStockPerColorArr.reduce((acc, curr) => acc + Number(curr), 0);
