@@ -51,7 +51,7 @@ export const columns: ColumnDef<ProductColumn>[] = [
     cell: ({ row }) => {
       return row.original.color.map((color: string) => (
         <div
-          key={color}
+          key={Math.random()+Date.now()}
           className=" border-slate-700 py-2 inline-flex pl-1 pr-1 border-double "
         >
           <div

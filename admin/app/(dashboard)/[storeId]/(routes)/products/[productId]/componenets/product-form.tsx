@@ -309,7 +309,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     <div className="flex flex-wrap gap-2">
                       {colorArr.map((color: string, index: number) => (
                         <div
-                          key={index}
+                          key={color}
                           className="flex flex-col items-center gap-2"
                         >
                           <input
