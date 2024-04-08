@@ -27,12 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import toast from "react-hot-toast";
-import axios from "axios";
-import { useParams, useRouter } from "next/navigation";
-import { AlertModal } from "@/components/models/alet-modal";
-
 import ImageUpload from "@/components/ui/image-upload";
 import {
   Select,
@@ -41,6 +35,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { AlertModal } from "@/components/models/alet-modal";
+import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -135,7 +135,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             value: color.value,
             stock: color.stock,
           })),
-          generalDescription: productDescription.generalDescription
+          generalDescription: productDescription.generalDescription,
+          characteristics: JSON.parse(productDescription.caracteristics).map((char: {title:string, description:string}) => ({
+            title: char.title, 
+            description: char.description
+          }))
         }
       : {
           name: "",
@@ -157,14 +161,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       stock: stockPerColorArr[index].toString(),
     }));
     data = { ...data, colors: colorsData };
-   
+
     data = {
       ...data,
-        generalDescription: data.generalDescription,
-        characteristics: data.characteristics,
-     
+      generalDescription: data.generalDescription,
+      characteristics: data.characteristics,
     };
-
 
     try {
       setloading(true);
@@ -234,17 +236,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const handleAddCarasteristic = (): void => {
     setCharacteristics([...characteristicsArr, { title: "", description: "" }]);
   };
-  const handleRemoveCarasteristic = (p0: number): void => {
+  const handleRemoveCarasteristic = (): void => {
     characteristicsArr.pop();
     setCharacteristics([...characteristicsArr]);
   };
-  const handleChangeCharacteristics = (index: any, field: string, value: string) => {
-    const updatedCharacteristics = characteristicsArr.map((char: any, charIndex: any) => {
-      if (index === charIndex) {
-        return { ...char, [field]: value };
+  const handleChangeCharacteristics = (
+    index: any,
+    field: string,
+    value: string
+  ) => {
+    const updatedCharacteristics = characteristicsArr.map(
+      (char: any, charIndex: any) => {
+        if (index === charIndex) {
+          return { ...char, [field]: value };
+        }
+        return char;
       }
-      return char;
-    });
+    );
     setCharacteristics(updatedCharacteristics);
 
     // Actualiza el valor en React Hook Form
@@ -400,6 +408,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         onClick={handleRemoveColor}
                         className="w-2 h-7 grid content-center text-white rounded"
                         type="button"
+                        disabled={colorArr.length === 1}
                       >
                         -
                       </Button>
@@ -473,95 +482,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-            {/* START DESCRIPTION */}
-            <FormField
-              control={form.control}
-              name="generalDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel> Description </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      disabled={loading}
-                      placeholder="Product description"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <FormField
-              control={form.control}
-              name="characteristics"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Characteristics</FormLabel>
-                  <div className="flex flex-wrap gap-2">
-                    {characteristicsArr.map((char: { title: string | number | readonly string[] | undefined; description: string | number | readonly string[] | undefined; }, index: Key | null | undefined) => (
-                      <div key={index} className="flex flex-col gap-2">
-                        <label htmlFor={`characteristics[${index}].title`}>
-                          Title
-                        </label>
-                        <input
-                          type="text"
-                          id={`characteristics[${index}].title`}
-                          value={char.title}
-                          onChange={(e) =>
-                            handleChangeCharacteristics(
-                              index,
-                              "title",
-                              e.target.value
-                            )
-                          }
-                          className="border-black-950 cursor-pointer"
-                        />
-                        <label
-                          htmlFor={`characteristics[${index}].description`}
-                        >
-                          Description
-                        </label>
-                        <input
-                          type="text"
-                          id={`characteristics[${index}].description`}
-                          value={char.description}
-                          onChange={(e) =>
-                            handleChangeCharacteristics(
-                              index,
-                              "description",
-                              e.target.value
-                            )
-                          }
-                          className="border-slate-950 cursor-pointer"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleAddCarasteristic}
-                      className="w-2 h-7 grid content-center text-white rounded"
-                      type="button"
-                    >
-                      +
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        handleRemoveCarasteristic(characteristicsArr.length - 1)
-                      }
-                      className="w-2 h-7 grid content-center text-white rounded"
-                      type="button"
-                      disabled={characteristicsArr.length === 1}
-                    >
-                      -
-                    </Button>
-                  </div>
-                </FormItem>
-              )}
-            />
-            {/* ENDDESCRIPTION */}
             <FormField
               control={form.control}
               name="isFeatured"
@@ -603,6 +524,104 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
           </div>
+          {/* START DESCRIPTION */}
+          <FormField
+            control={form.control}
+            name="generalDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel> Description </FormLabel>
+                <FormControl>
+                  <Textarea
+                    disabled={loading}
+                    placeholder="Product description"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="characteristics"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Characteristics</FormLabel>
+                <div className="flex flex-wrap gap-2">
+                  {characteristicsArr.map(
+                    (
+                      char: {
+                        title: string | number | readonly string[] | undefined;
+                        description:
+                          | string
+                          | number
+                          | readonly string[]
+                          | undefined;
+                      },
+                      index: Key | null | undefined
+                    ) => (
+                      <div key={index} className="flex flex-col gap-2">
+                        <label htmlFor={`characteristics[${index}].title`}>
+                          Title
+                        </label>
+                        <input
+                          type="text"
+                          id={`characteristics[${index}].title`}
+                          value={char.title}
+                          onChange={(e) =>
+                            handleChangeCharacteristics(
+                              index,
+                              "title",
+                              e.target.value
+                            )
+                          }
+                          className="border-black-950 cursor-pointer"
+                        />
+                        <label
+                          htmlFor={`characteristics[${index}].description`}
+                        >
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          id={`characteristics[${index}].description`}
+                          value={char.description}
+                          onChange={(e) =>
+                            handleChangeCharacteristics(
+                              index,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          className="border-slate-950 cursor-pointer"
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleAddCarasteristic}
+                    className="w-2 h-7 grid content-center text-white rounded"
+                    type="button"
+                  >
+                    +
+                  </Button>
+                  <Button
+                    onClick={() => handleRemoveCarasteristic()}
+                    className="w-2 h-7 grid content-center text-white rounded"
+                    type="button"
+                    disabled={characteristicsArr.length === 1}
+                  >
+                    -
+                  </Button>
+                </div>
+              </FormItem>
+            )}
+          />
+          {/* ENDDESCRIPTION */}
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
           </Button>
