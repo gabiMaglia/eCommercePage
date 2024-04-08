@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Headding } from "@/components/ui/headding";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { Key, useState } from "react";
 import {
   Form,
   FormControl,
@@ -104,6 +104,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         })
       : 0
   );
+
   const [characteristicsArr, setCharacteristics] = useState(() =>
     initialData
       ? JSON.parse(productDescription.caracteristics).map(
@@ -156,22 +157,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       stock: stockPerColorArr[index].toString(),
     }));
     data = { ...data, colors: colorsData };
-
-    const caracteristicsData = JSON.stringify(data.characteristics);
-    console.log(caracteristicsData);
-
-    const productDescription = {
-      generalDescription: data.generalDescription,
-      caracteristicsData,
-    };
+   
     data = {
       ...data,
         generalDescription: data.generalDescription,
-        characteristics: caracteristicsData,
+        characteristics: data.characteristics,
      
     };
 
-    console.log(data);
+
     try {
       setloading(true);
       if (initialData) {
@@ -244,8 +238,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     characteristicsArr.pop();
     setCharacteristics([...characteristicsArr]);
   };
-  const handleChangeCharacteristics = (index, field, value) => {
-    const updatedCharacteristics = characteristicsArr.map((char, charIndex) => {
+  const handleChangeCharacteristics = (index: any, field: string, value: string) => {
+    const updatedCharacteristics = characteristicsArr.map((char: any, charIndex: any) => {
       if (index === charIndex) {
         return { ...char, [field]: value };
       }
@@ -506,7 +500,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <FormItem>
                   <FormLabel>Characteristics</FormLabel>
                   <div className="flex flex-wrap gap-2">
-                    {characteristicsArr.map((char, index) => (
+                    {characteristicsArr.map((char: { title: string | number | readonly string[] | undefined; description: string | number | readonly string[] | undefined; }, index: Key | null | undefined) => (
                       <div key={index} className="flex flex-col gap-2">
                         <label htmlFor={`characteristics[${index}].title`}>
                           Title
