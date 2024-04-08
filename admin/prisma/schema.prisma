@@ -68,7 +68,7 @@ model Brand {
 model Color {
   id        String   @id @default(uuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   
   value     String
   stock     String
@@ -108,7 +108,7 @@ model ProductDescription {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
  
   generalDescription  String @default(" ")
-  caracteristics String
+  caracteristics String @default("[]")
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,9 +1,16 @@
 "use client";
 
 import * as z from "zod";
-import { Brand, Category, Color, Image, Product } from "@prisma/client";
+import {
+  Brand,
+  Category,
+  Color,
+  Image,
+  Product,
+  ProductDescription,
+} from "@prisma/client";
 import { Trash } from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,6 +51,13 @@ const formSchema = z.object({
       stock: z.string(),
     })
   ),
+  generalDescription: z.string(),
+  characteristics: z.array(
+    z.object({
+      title: z.string(),
+      description: z.string(),
+    })
+  ),
   price: z.coerce.number().min(1),
   stock: z.coerce.number(),
   categoryId: z.string().min(1),
@@ -61,9 +75,10 @@ interface ProductFormProps {
     | null;
 
   categories: Category[];
-  stock:  number;
+  stock: number | undefined;
   colors: Color[];
   brand: Brand[];
+  productDescription: ProductDescription;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
@@ -71,6 +86,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   categories,
   colors,
   brand,
+  productDescription,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -83,10 +99,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   );
   const [totalStock, setTotalStock] = useState(() =>
     initialData
-      ?  stockPerColorArr.reduce((stock, acc) => {
-        return (Number(acc) + Number(stock));
-      })
+      ? stockPerColorArr.reduce((stock, acc) => {
+          return Number(acc) + Number(stock);
+        })
       : 0
+  );
+  const [characteristicsArr, setCharacteristics] = useState(() =>
+    initialData
+      ? JSON.parse(productDescription.caracteristics).map(
+          (e: { title: string; description: string }) => ({
+            title: e.title,
+            description: e.description,
+          })
+        )
+      : [{ title: " ", description: " " }]
   );
 
   const [open, setOpen] = useState(false);
@@ -96,8 +122,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const description = initialData ? "Edit Products" : "Add a new Products";
   const toastMessage = initialData ? "Products Updated" : "Products Created";
   const action = initialData ? "Save changes" : "Create";
-
-
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
@@ -110,6 +134,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             value: color.value,
             stock: color.stock,
           })),
+          generalDescription: productDescription.generalDescription
         }
       : {
           name: "",
@@ -119,6 +144,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           price: 0,
           categoryId: "",
           brandId: "",
+          generalDescription: "",
+          characteristics: [{ title: "", description: "" }],
           isFeatured: false,
           isArchived: false,
         },
@@ -126,10 +153,25 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     const colorsData = colorArr.map((color: string, index: number) => ({
       value: color,
-      stock: (stockPerColorArr[index]).toString(),
+      stock: stockPerColorArr[index].toString(),
     }));
     data = { ...data, colors: colorsData };
 
+    const caracteristicsData = JSON.stringify(data.characteristics);
+    console.log(caracteristicsData);
+
+    const productDescription = {
+      generalDescription: data.generalDescription,
+      caracteristicsData,
+    };
+    data = {
+      ...data,
+        generalDescription: data.generalDescription,
+        characteristics: caracteristicsData,
+     
+    };
+
+    console.log(data);
     try {
       setloading(true);
       if (initialData) {
@@ -176,7 +218,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     stockPerColorArr.pop();
     setStockPerColors([...stockPerColorArr]);
   };
-
   const handleChangeColor = (color: string, index: number): void => {
     const newColors = [...colorArr];
     newColors[index] = color;
@@ -187,10 +228,33 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     updatedStockPerColorArr[index] = Number(newStockValue);
     setStockPerColors(updatedStockPerColorArr);
 
-    const newTotalStock = updatedStockPerColorArr.reduce((acc, curr) => acc + Number(curr), 0);
+    const newTotalStock = updatedStockPerColorArr.reduce(
+      (acc, curr) => acc + Number(curr),
+      0
+    );
     setTotalStock(newTotalStock);
 
-    form.setValue('stock', newTotalStock);
+    form.setValue("stock", newTotalStock);
+  };
+
+  const handleAddCarasteristic = (): void => {
+    setCharacteristics([...characteristicsArr, { title: "", description: "" }]);
+  };
+  const handleRemoveCarasteristic = (p0: number): void => {
+    characteristicsArr.pop();
+    setCharacteristics([...characteristicsArr]);
+  };
+  const handleChangeCharacteristics = (index, field, value) => {
+    const updatedCharacteristics = characteristicsArr.map((char, charIndex) => {
+      if (index === charIndex) {
+        return { ...char, [field]: value };
+      }
+      return char;
+    });
+    setCharacteristics(updatedCharacteristics);
+
+    // Actualiza el valor en React Hook Form
+    form.setValue("characteristics", updatedCharacteristics);
   };
 
   return (
@@ -292,7 +356,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       disabled={true}
                       placeholder="0"
                       {...field}
-
                     />
                   </FormControl>
                   <FormMessage />
@@ -351,6 +414,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 )}
               />
             </div>
+
             <FormField
               control={form.control}
               name="categoryId"
@@ -415,6 +479,95 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
+            {/* START DESCRIPTION */}
+            <FormField
+              control={form.control}
+              name="generalDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel> Description </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      disabled={loading}
+                      placeholder="Product description"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="characteristics"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Characteristics</FormLabel>
+                  <div className="flex flex-wrap gap-2">
+                    {characteristicsArr.map((char, index) => (
+                      <div key={index} className="flex flex-col gap-2">
+                        <label htmlFor={`characteristics[${index}].title`}>
+                          Title
+                        </label>
+                        <input
+                          type="text"
+                          id={`characteristics[${index}].title`}
+                          value={char.title}
+                          onChange={(e) =>
+                            handleChangeCharacteristics(
+                              index,
+                              "title",
+                              e.target.value
+                            )
+                          }
+                          className="border-black-950 cursor-pointer"
+                        />
+                        <label
+                          htmlFor={`characteristics[${index}].description`}
+                        >
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          id={`characteristics[${index}].description`}
+                          value={char.description}
+                          onChange={(e) =>
+                            handleChangeCharacteristics(
+                              index,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          className="border-slate-950 cursor-pointer"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleAddCarasteristic}
+                      className="w-2 h-7 grid content-center text-white rounded"
+                      type="button"
+                    >
+                      +
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        handleRemoveCarasteristic(characteristicsArr.length - 1)
+                      }
+                      className="w-2 h-7 grid content-center text-white rounded"
+                      type="button"
+                      disabled={characteristicsArr.length === 1}
+                    >
+                      -
+                    </Button>
+                  </div>
+                </FormItem>
+              )}
+            />
+            {/* ENDDESCRIPTION */}
             <FormField
               control={form.control}
               name="isFeatured"

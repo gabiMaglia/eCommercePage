@@ -15,7 +15,8 @@ export async function GET(_req: Request, { params }: { params: { productId: stri
                 images: true,
                 category: true,
                 brand: true,
-                colors: true
+                colors: true,
+                productDescription: true
             }
         })
 
@@ -109,6 +110,7 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
 
 export async function DELETE(_req: Request, { params }: { params: { storeId: string, productId: string } }) {
     try {
+     
         const { userId } = auth()
 
         if (!userId) return new NextResponse("Unautorized", { status: 401 });
@@ -130,7 +132,7 @@ export async function DELETE(_req: Request, { params }: { params: { storeId: str
 
             },
         })
-
+       
         return NextResponse.json(product)
     } catch (error) {
         console.log("PRODUCT_DELETE", error)

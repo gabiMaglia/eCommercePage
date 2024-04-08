@@ -11,7 +11,7 @@ export async function POST(
         const body = await req.json();
         if (!userId) return new NextResponse("Unautorized", { status: 401 });
 
-        const { name, price, categoryId, brandId, colors, stock, images, isFeatured, isArchived } = body
+        const { name, price, categoryId, brandId, colors, stock, images, generalDescription, characteristics, isFeatured, isArchived } = body
         
         if (!name) return new NextResponse("Name is required", { status: 400 });
         if (!images || !images.length) return new NextResponse("Images is required", { status: 400 });
@@ -23,8 +23,7 @@ export async function POST(
         if (!colors) return new NextResponse("Color is required", { status: 400 });
         if (!params.storeId) return new NextResponse("StoreId is required", { status: 400 });
         
-        
-        
+        console.log(generalDescription, characteristics)
         const storeByUserId = await prismadb.store.findFirst({
             where: {
                 id: params.storeId,
@@ -33,8 +32,9 @@ export async function POST(
         })
         
         if (!storeByUserId) return new NextResponse("Unauthorized", { status: 403 });
-      
-        console.log({Color: colors})  
+        
+       
+     
         const product = await prismadb.product.create({
             data: {
                name, 
@@ -59,6 +59,12 @@ export async function POST(
                   stock: color.stock.toString()
                 })),
               },
+              productDescription: {
+                create: {
+                    generalDescription: generalDescription, 
+                    caracteristics: characteristics, 
+                },
+            },
                isFeatured, 
                isArchived,
                
@@ -102,7 +108,8 @@ export async function GET(
                 category: true,
                 brand: true,
                 stock: true,
-                colors: true
+                colors: true,
+                productDescription: true
             }
         });
        

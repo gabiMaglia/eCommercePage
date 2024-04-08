@@ -13,7 +13,8 @@ const ProductPage = async({
         include: {
             images: true,
             // color: true,
-            stock: true
+            stock: true,
+            productDescription:true
         }
     })    
 
@@ -30,6 +31,9 @@ const ProductPage = async({
     const stock = await prismadb.stock.findFirst({
         where: {productId: params.productId}
     })
+    const description = await prismadb.productDescription.findFirst({
+        where: {productId: params.productId}
+    })
 
     const quantity : number | undefined = stock?.quantity
 
@@ -40,6 +44,7 @@ const ProductPage = async({
             categories={categories}
             brand={brand}
             stock={quantity}
+            productDescription={description}
             colors={color}
             initialData={product}
             />
