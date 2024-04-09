@@ -4,7 +4,9 @@ import { NextResponse } from "next/server"
 
 
 export async function GET(_req: Request, { params }: { params: { productId: string } }) {
+console.log('pase')
     try {
+
         if (!params.productId) return new NextResponse('productId is required', { status: 400 })
 
         const product = await prismadb.product.findUnique({
@@ -16,10 +18,10 @@ export async function GET(_req: Request, { params }: { params: { productId: stri
                 category: true,
                 brand: true,
                 colors: true,
+                stock:true,
                 productDescription: true
             }
         })
-
         return NextResponse.json(product)
     } catch (error) {
         console.log("PRODUCT_GET", error)

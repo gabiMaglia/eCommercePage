@@ -78,7 +78,7 @@ interface ProductFormProps {
   stock: number | undefined;
   colors: Color[];
   brand: Brand[];
-  productDescription: ProductDescription;
+  productDescription: ProductDescription | null ;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
@@ -107,12 +107,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const [characteristicsArr, setCharacteristics] = useState(() =>
     initialData
-      ? JSON.parse(productDescription.caracteristics).map(
+      ? productDescription ? JSON.parse(productDescription.caracteristics).map(
           (e: { title: string; description: string }) => ({
             title: e.title,
             description: e.description,
           })
         )
+        :[{ title: " ", description: " " }]
       : [{ title: " ", description: " " }]
   );
 
@@ -135,11 +136,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             value: color.value,
             stock: color.stock,
           })),
-          generalDescription: productDescription.generalDescription,
-          characteristics: JSON.parse(productDescription.caracteristics).map((char: {title:string, description:string}) => ({
+          generalDescription: productDescription?.generalDescription,
+          characteristics: productDescription? JSON.parse(productDescription.caracteristics).map((char: {title:string, description:string}) => ({
             title: char.title, 
             description: char.description
-          }))
+          })): {
+            title: "", 
+            description: ""
+          }
+
         }
       : {
           name: "",
@@ -283,7 +288,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       <Separator />
       <Form {...form}>
         <form
-          className="space-y-8 w-full"
+          className="space-y-8 w-full flex flex-col"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
@@ -374,16 +379,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     <div className="flex flex-wrap gap-2">
                       {colorArr.map((color: string, index: number) => (
                         <div
-                          key={color}
-                          className="flex flex-col items-center gap-2"
+                          key={index}
+                          className="flex flex-row items-center gap-2 "
                         >
                           <input
                             type="color"
+                            
                             value={color}
                             onChange={(e) =>
                               handleChangeColor(e.target.value, index)
                             }
-                            className="w-6 h-6  border-slate-950 rounded-full cursor-pointer"
+                            className="w-6 h-6  border-slate-950 rounded cursor-pointer"
                           />
                           <Input
                             type="number"
@@ -566,7 +572,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <label htmlFor={`characteristics[${index}].title`}>
                           Title
                         </label>
-                        <input
+                        <Input
                           type="text"
                           id={`characteristics[${index}].title`}
                           value={char.title}
@@ -577,15 +583,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                               e.target.value
                             )
                           }
-                          className="border-black-950 cursor-pointer"
+                          className="border-black-950"
                         />
                         <label
                           htmlFor={`characteristics[${index}].description`}
                         >
                           Description
                         </label>
-                        <input
-                          type="text"
+                        <Textarea
+                          // type="text"
                           id={`characteristics[${index}].description`}
                           value={char.description}
                           onChange={(e) =>
@@ -595,7 +601,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                               e.target.value
                             )
                           }
-                          className="border-slate-950 cursor-pointer"
+                          className="border-slate-950"
                         />
                       </div>
                     )

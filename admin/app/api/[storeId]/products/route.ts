@@ -32,10 +32,10 @@ export async function POST(
         })
 
         if (!storeByUserId) return new NextResponse("Unauthorized", { status: 403 });
-        console.log(characteristics)
 
-        const parseCaracteristics = JSON.stringify(characteristics)
-        console.log(parseCaracteristics)
+
+        const parsedCaracteristics = JSON.stringify(characteristics)
+
 
 
 
@@ -66,7 +66,7 @@ export async function POST(
                 productDescription: {
                     create: {
                         generalDescription: generalDescription,
-                        caracteristics: parseCaracteristics,
+                        caracteristics: parsedCaracteristics,
                     },
                 },
                 isFeatured,
@@ -91,7 +91,9 @@ export async function GET(
     req: Request,
     { params }: { params: { storeId: string } }
 ) {
+
     try {
+       
         const { searchParams } = new URL(req.url)
         const categoryId = searchParams.get('categoryId') || undefined
         const brandId = searchParams.get('brandId') || undefined
@@ -113,10 +115,10 @@ export async function GET(
                 brand: true,
                 stock: true,
                 colors: true,
-                productDescription: true
+                // productDescription: true
             }
         });
-
+        
         return NextResponse.json(products);
 
     } catch (error) {

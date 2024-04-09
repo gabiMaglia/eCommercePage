@@ -1,5 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { ProductForm } from "./componenets/product-form";
+import { ProductDescription } from "@prisma/client";
 
 const ProductPage = async({
     params
@@ -31,10 +32,10 @@ const ProductPage = async({
     const stock = await prismadb.stock.findFirst({
         where: {productId: params.productId}
     })
-    const description = await prismadb.productDescription.findFirst({
+    const description  = await prismadb.productDescription.findFirst({
         where: {productId: params.productId}
     })
-
+   
     const quantity : number | undefined = stock?.quantity
 
     return (  
