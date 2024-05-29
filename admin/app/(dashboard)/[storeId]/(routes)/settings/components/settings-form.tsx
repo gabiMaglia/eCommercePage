@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { ContactData, Store } from "@prisma/client";
-import { Trash } from "lucide-react";
+import { CheckIcon, Trash, CarrotIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -25,20 +25,36 @@ import { useParams, useRouter } from "next/navigation";
 import { AlertModal } from "@/components/models/alet-modal";
 import { ApiAlert } from "@/components/ui/api-alert";
 import { useOrigin } from "@/hooks/use-origin";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn, countryList } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { Textarea } from "@/components/ui/textarea";
 
 interface SettingsFormProps {
-  initialData: Store & {contactData :ContactData};
-
+  initialData: Store & { contactData: ContactData | null };
 }
 
 const formSchema = z.object({
   name: z.string().min(1),
-  phone: z.string().transform((val) => Number(val)),
+  phone: z.string().transform((val) => val.toString()),
   email: z.string().email(),
   country: z.string().min(1),
+  openTime: z.string().min(1),
+  closeTime: z.string().min(1),
+  aboutUs: z.string().min(1),
   state: z.string().min(1),
   address: z.string().min(1),
-  number: z.string().transform((val) => Number(val)),
+  number: z.string(),
   facebook: z.string().optional(),
   instagram: z.string().optional(),
   mercadoLibre: z.string().optional(),
@@ -52,17 +68,31 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
   const origin = useOrigin();
-  const {contactData} = initialData
- 
+
+  const { contactData } = initialData;
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {...initialData, ...contactData},
+    defaultValues: {
+      ...initialData,
+      ...contactData,
+      openTime: contactData?.storeHours
+        ? contactData.storeHours.split(" ")[0]
+        : "",
+      closeTime: contactData?.storeHours
+        ? contactData.storeHours.split(" ")[1]
+        : "",
+    },
   });
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
       setloading(true);
-      await axios.patch(`/api/stores/${params.storeId}`, data);
+      const storeHours = `${data.openTime} ${data.closeTime}`;
+      await axios.patch(`/api/stores/${params.storeId}`, {
+        ...data,
+        storeHours,
+      });
       router.refresh();
       toast.success("Store Updated");
     } catch (error) {
@@ -71,6 +101,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       setloading(false);
     }
   };
+
   const onDelete = async () => {
     try {
       setloading(true);
@@ -95,7 +126,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
         loading={loading}
       />
       <div className="flex items-center justify-between">
-        <Headding title="Settings" description="Hola" />
+        <Headding title="Settings" description="Edit your data" />
         <Button
           variant="destructive"
           size="icon"
@@ -111,184 +142,276 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
           className="space-y-8 w-full"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div className=" grid grid-cols-3 gap-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className="grid  xl:grid-cols-3 gap-8 md:grid-cols-2 grid-cols-1">
+            <span className="flex-col">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input disabled={loading} placeholder="Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        disabled={loading}
+                        placeholder="Phone"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        disabled={loading}
+                        placeholder="Email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="aboutUs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>About the store</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        disabled={loading}
+                        placeholder="Short Description"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input
-                       type="number"
-                      disabled={loading}
-                      placeholder="Phone"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      disabled={loading}
-                      placeholder="Email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Country"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="State" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Address"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number</FormLabel>
-                  <FormControl>
-                    <Input
-                     type="number"
-                      disabled={loading}
-                      placeholder="Number"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="facebook"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Facebook</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="url"
-                      disabled={loading}
-                      placeholder="Facebook"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="instagram"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Instagram</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="url"
-                      disabled={loading}
-                      placeholder="Instagram"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="mercadoLibre"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mercado Libre</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="url"
-                      disabled={loading}
-                      placeholder="Mercado Libre"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="flex gap-3 w-100%">
+                <FormField
+                  control={form.control}
+                  name="openTime"
+                  render={({ field }) => (
+                    <FormItem className="flex-col w-[100%]">
+                      <FormLabel>Open Time</FormLabel>
+                      <FormControl >
+                        <Input className="flex justify-center"  type="time" disabled={loading} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="closeTime"
+                  render={({ field }) => (
+                    <FormItem className="flex-col w-[100%]">
+                      <FormLabel>Close Time</FormLabel>
+                      <FormControl>
+                        <Input className="flex justify-center"  type="time" disabled={loading} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+              </div>
+            </span>
+            <span className="flex-col">
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Country</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-100% justify-between align-baseline",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? countryList.find(
+                                  (country) => country === field.value
+                                )
+                              : "Select country"}
+                            <CarrotIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search country..."
+                            className="h-9"
+                          />
+                          <CommandEmpty>No country found.</CommandEmpty>
+                          <CommandGroup>
+                            {countryList.map((country) => (
+                              <CommandItem
+                                value={country}
+                                key={country}
+                                onSelect={() => {
+                                  form.setValue("country", country);
+                                }}
+                              >
+                                {country}
+                                <CheckIcon
+                                  className={cn(
+                                    "ml-auto h-4 w-4",
+                                    country === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="State"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="Address"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="string"
+                        disabled={loading}
+                        placeholder="Number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </span>
+            <span className="flex-col">
+              <FormField
+                control={form.control}
+                name="facebook"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Facebook</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="url"
+                        disabled={loading}
+                        placeholder="Facebook"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="instagram"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Instagram</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="url"
+                        disabled={loading}
+                        placeholder="Instagram"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mercadoLibre"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mercado Libre</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="url"
+                        disabled={loading}
+                        placeholder="Mercado Libre"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </span>
           </div>
           <Button disabled={loading} className="ml-auto" type="submit">
             Save Changes

@@ -21,22 +21,24 @@ model Store {
 
   contactData ContactData?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ContactData {
   id      String @id @default(uuid())
   store   Store  @relation(fields: [storeId], references: [id])
   storeId String @unique
-  phone   Int
-  email   String
+
+  phone      String
+  email      String
+  storeHours String
+  aboutUs    String
 
   country String
-  state String
+  state   String
   address String
-  number Int
-
+  number  String
 
   facebook     String
   instagram    String

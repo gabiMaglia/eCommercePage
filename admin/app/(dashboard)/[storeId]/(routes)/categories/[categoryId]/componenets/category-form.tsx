@@ -154,7 +154,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             )}
           />
 
-          <div className=" grid grid-cols-3 gap-8">
+          <div className=" grid xl:grid-cols-3 grid-cols-1 gap-8">
             <FormField
               control={form.control}
               name="name"
@@ -193,11 +193,18 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {billboards.map((billboard) => (
-                        <SelectItem key={billboard.id} value={billboard.id}>
-                          {billboard.label}
+                    {billboards.length === 0 ? (
+                        <SelectItem value="0" disabled>
+                          No Billboards found
                         </SelectItem>
-                      ))}
+                      ) : (
+                        billboards.map((billboard) => (
+                          <SelectItem key={billboard.id} value={billboard.id}>
+                            {billboard.label}
+                          </SelectItem>
+                        ))
+                      )}
+                    
                     </SelectContent>
                   </Select>
                   <FormMessage />

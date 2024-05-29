@@ -77,7 +77,7 @@ interface ProductFormProps {
   stock: number | undefined;
   colors: Color[];
   brand: Brand[];
-  productDescription: ProductDescription | null ;
+  productDescription: ProductDescription | null;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
@@ -106,13 +106,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const [characteristicsArr, setCharacteristics] = useState(() =>
     initialData
-      ? productDescription ? JSON.parse(productDescription.caracteristics).map(
-          (e: { title: string; description: string }) => ({
-            title: e.title,
-            description: e.description,
-          })
-        )
-        :[{ title: " ", description: " " }]
+      ? productDescription
+        ? JSON.parse(productDescription.caracteristics).map(
+            (e: { title: string; description: string }) => ({
+              title: e.title,
+              description: e.description,
+            })
+          )
+        : [{ title: " ", description: " " }]
       : [{ title: " ", description: " " }]
   );
 
@@ -136,14 +137,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             stock: color.stock,
           })),
           generalDescription: productDescription?.generalDescription,
-          characteristics: productDescription? JSON.parse(productDescription.caracteristics).map((char: {title:string, description:string}) => ({
-            title: char.title, 
-            description: char.description
-          })): {
-            title: "", 
-            description: ""
-          }
-
+          characteristics: productDescription
+            ? JSON.parse(productDescription.caracteristics).map(
+                (char: { title: string; description: string }) => ({
+                  title: char.title,
+                  description: char.description,
+                })
+              )
+            : {
+                title: "",
+                description: "",
+              },
         }
       : {
           name: "",
@@ -314,7 +318,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </FormItem>
             )}
           />
-          <div className=" grid grid-cols-3 gap-8">
+          <div className=" grid xl:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-8">
             <FormField
               control={form.control}
               name="name"
@@ -374,23 +378,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 name="colors"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel> Colors </FormLabel>
+                    <FormLabel> Colors/Stock </FormLabel>
                     <div className="flex flex-wrap gap-2">
                       {colorArr.map((color: string, index: number) => (
                         <div
                           key={index}
                           className="flex flex-row items-center gap-2 "
                         >
-                        <div className=" rounded-full border-none">
-                          <input
-                            type="color"
-                            value={color}
-                            onChange={(e) =>
-                              handleChangeColor(e.target.value, index)
-                            }
-                            className="w-6 h-6 outline-none border-none rounded-full cursor-pointer"
-                          />
-                        </div>  
+                          <div className="rounded-full border-none">
+                            <input
+                              type="color"
+                              value={color}
+                              onChange={(e) =>
+                                handleChangeColor(e.target.value, index)
+                              }
+                              className="w-6 h-6 outline-none border-none rounded-full cursor-pointer"
+                            />
+                          </div>
                           <Input
                             type="number"
                             value={stockPerColorArr[index]}
@@ -445,11 +449,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
+                      {categories.length === 0 ? (
+                        <SelectItem value="0" disabled>
+                          No categories found
                         </SelectItem>
-                      ))}
+                      ) : (
+                        categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -477,11 +487,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {brand.map((brand) => (
-                        <SelectItem key={brand.id} value={brand.id}>
-                          {brand.name}
+                      
+                    {brand.length === 0 ? (
+                        <SelectItem value="0" disabled>
+                          No Brands found
                         </SelectItem>
-                      ))}
+                      ) : (
+                        brand.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -568,7 +585,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       },
                       index: Key | null | undefined
                     ) => (
-                      <div key={index} className="flex flex-col gap-2">
+                      <div
+                        key={index}
+                        className="flex w-[100%] md:w-[50%] xl:w-[30%] flex-col gap-2"
+                      >
                         <label htmlFor={`characteristics[${index}].title`}>
                           Title
                         </label>

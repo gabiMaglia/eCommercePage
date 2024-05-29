@@ -9,10 +9,10 @@ export async function PATCH(req: Request, {params}: {params: {storeId: string}} 
     const body = await req.json()
     if (!userId) return new NextResponse("Unautorized", { status: 401 });
 
-    const { name, phone, email, country, state, address, number, facebook = "", instagram = "", mercadoLibre = "" } = body
+    const { name, phone, email, country, state, address, number, storeHours, aboutUs, facebook = "", instagram = "", mercadoLibre = "" } = body
     if (!name) return new NextResponse("Name is required", { status: 400 });
     if (!params.storeId) return new NextResponse('StoreId is required', {status: 400})
-
+    
     const store = await prismadb.store.update({
         where: {
             id: params.storeId,
@@ -25,6 +25,8 @@ export async function PATCH(req: Request, {params}: {params: {storeId: string}} 
                 create: {
                   phone,
                   email,
+                  storeHours,
+                  aboutUs,
                   country, state, number,
                   address,
                   facebook,
@@ -33,7 +35,10 @@ export async function PATCH(req: Request, {params}: {params: {storeId: string}} 
                 },
                 update: {
                   phone,
+                  storeHours,
+                  aboutUs,
                   email,
+                  country, state, number,
                   address,
                   facebook,
                   instagram,

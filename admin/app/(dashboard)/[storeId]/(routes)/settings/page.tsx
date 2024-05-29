@@ -20,6 +20,7 @@ const SettingsPage: React.FC<SettingsPageProps> = async ({ params }) => {
     include: {contactData: true}
   });
   if (!store) redirect("/");
+  console.log(store)
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
