@@ -9,19 +9,43 @@ export async function PATCH(req: Request, {params}: {params: {storeId: string}} 
     const body = await req.json()
     if (!userId) return new NextResponse("Unautorized", { status: 401 });
 
-    const { name } = body
+    const { name, phone, email, country, state, address, number, facebook = "", instagram = "", mercadoLibre = "" } = body
     if (!name) return new NextResponse("Name is required", { status: 400 });
     if (!params.storeId) return new NextResponse('StoreId is required', {status: 400})
 
-    const store = await prismadb.store.updateMany({
+    const store = await prismadb.store.update({
         where: {
             id: params.storeId,
             userId
         },
         data: {
-            name
-        }
-    })
+            name,
+            contactData: {
+              upsert: {
+                create: {
+                  phone,
+                  email,
+                  country, state, number,
+                  address,
+                  facebook,
+                  instagram,
+                  mercadoLibre
+                },
+                update: {
+                  phone,
+                  email,
+                  address,
+                  facebook,
+                  instagram,
+                  mercadoLibre
+                },
+              },
+            },
+          },
+          include: {
+            contactData: true,
+          },
+        });
     return NextResponse.json(store)
   } catch (error) {
     console.log("STORE_PATCH", error)

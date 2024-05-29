@@ -1,14 +1,19 @@
-import getBillboard from "@/actions/get-billboards"
+import getBillboards from "@/actions/get-billboards"
+import  getBillboardbyId from "@/actions/get-billboardById"
 import getProducts from "@/actions/get-products"
 import Billboard from "@/components/billboard"
 import ProductList from "@/components/product-list"
 import Container from "@/components/ui/container"
 
+
 export const revalidate = 0
 
 const HomePage =  async() => {
     const products = await getProducts({isFeatured:true});
-    const billboard = await getBillboard("3ba6156a-a17f-44b3-97c3-1f68cfc0907b")
+    const billboards = await getBillboards()
+    const  firstBill = billboards[0]
+    const billboard = await getBillboardbyId(firstBill.id)
+    
   
     return(
         <Container>

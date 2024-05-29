@@ -12,7 +12,6 @@ import {
 import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Checkbox } from "@/components/ui/checkbox";
 import { Headding } from "@/components/ui/headding";
 import { Button } from "@/components/ui/button";
@@ -382,15 +381,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                           key={index}
                           className="flex flex-row items-center gap-2 "
                         >
+                        <div className=" rounded-full border-none">
                           <input
                             type="color"
-                            
                             value={color}
                             onChange={(e) =>
                               handleChangeColor(e.target.value, index)
                             }
-                            className="w-6 h-6  border-slate-950 rounded cursor-pointer"
+                            className="w-6 h-6 outline-none border-none rounded-full cursor-pointer"
                           />
+                        </div>  
                           <Input
                             type="number"
                             value={stockPerColorArr[index]}

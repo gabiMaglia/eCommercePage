@@ -1,7 +1,7 @@
 "use client";
 
 import * as z from "zod";
-import { Store } from "@prisma/client";
+import { ContactData, Store } from "@prisma/client";
 import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,11 +27,21 @@ import { ApiAlert } from "@/components/ui/api-alert";
 import { useOrigin } from "@/hooks/use-origin";
 
 interface SettingsFormProps {
-  initialData: Store;
+  initialData: Store & {contactData :ContactData};
+
 }
 
 const formSchema = z.object({
   name: z.string().min(1),
+  phone: z.string().transform((val) => Number(val)),
+  email: z.string().email(),
+  country: z.string().min(1),
+  state: z.string().min(1),
+  address: z.string().min(1),
+  number: z.string().transform((val) => Number(val)),
+  facebook: z.string().optional(),
+  instagram: z.string().optional(),
+  mercadoLibre: z.string().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof formSchema>;
@@ -41,10 +51,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const [loading, setloading] = useState(false);
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin()
+  const origin = useOrigin();
+  const {contactData} = initialData
+ 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {...initialData, ...contactData},
   });
 
   const onSubmit = async (data: SettingsFormValues) => {
@@ -105,9 +117,173 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel> Name </FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input disabled={loading} placeholder="Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input
+                       type="number"
+                      disabled={loading}
+                      placeholder="Phone"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      disabled={loading}
+                      placeholder="Email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Country"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="State" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Address"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number</FormLabel>
+                  <FormControl>
+                    <Input
+                     type="number"
+                      disabled={loading}
+                      placeholder="Number"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="facebook"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Facebook</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      disabled={loading}
+                      placeholder="Facebook"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="instagram"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Instagram</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      disabled={loading}
+                      placeholder="Instagram"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mercadoLibre"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mercado Libre</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      disabled={loading}
+                      placeholder="Mercado Libre"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

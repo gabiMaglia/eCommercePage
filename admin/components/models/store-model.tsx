@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SignOutButton } from "@clerk/nextjs";
 
 
 const formSchema = z.object({
@@ -54,7 +55,7 @@ export const StoreModal = () => {
       description="Add a new Store to manage products and categories"
       isOpen={storeModal.isOpen}
       onClose={storeModal.onClose}
-    >
+      >
       <div>
         <div className="space-y-4 py-2 pb-4">
           <Form {...form}>
@@ -68,21 +69,29 @@ export const StoreModal = () => {
                     <FormControl>
                       <Input
                         disabled={loading}
-                        placeholder="E-commerce"
+                        placeholder="Folk"
                         {...field}
-                      />
+                        />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+                />
 
-              <div className="pt-6 space-x-2 flex items-center justify-end">
+              <div className="pt-6 space-x-2 flex gap-3 items-center justify-end">
+                <Button
+                  variant="outline"
+                  disabled={loading}
+                  type="button"
+                  >
+                <SignOutButton />
+                 
+                </Button>
                 <Button
                   variant="outline"
                   disabled={loading}
                   onClick={storeModal.onClose}
-                >
+                  >
                   Cancel
                 </Button>
                 <Button disabled={loading} type="submit">

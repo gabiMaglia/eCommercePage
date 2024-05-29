@@ -8,17 +8,39 @@ datasource db {
 }
 
 model Store {
-  id         String      @id @default(uuid())
-  name       String
-  userId     String
+  id     String @id @default(uuid())
+  name   String
+  userId String
+
   billboards Billboard[] @relation("StoreToBillboard")
   categories Category[]  @relation("StoreToCategory")
   brands     Brand[]     @relation("StoreToBrand")
 
-  products  Product[] @relation("StoreToProduct")
-  orders    Order[]   @relation("StoreToOrder")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  products Product[] @relation("StoreToProduct")
+  orders   Order[]   @relation("StoreToOrder")
+
+  contactData ContactData?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactData {
+  id      String @id @default(uuid())
+  store   Store  @relation(fields: [storeId], references: [id])
+  storeId String @unique
+  phone   Int
+  email   String
+
+  country String
+  state String
+  address String
+  number Int
+
+
+  facebook     String
+  instagram    String
+  mercadoLibre String
 }
 
 model Billboard {
@@ -66,12 +88,12 @@ model Brand {
 }
 
 model Color {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  value     String
-  stock     String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  value String
+  stock String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,27 +117,26 @@ model Stock {
   id        String  @id @default(uuid())
   productId String  @unique
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  quantity  Int     @default(0)
+
+  quantity Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-    @@index([productId])
+
+  @@index([productId])
 }
 
 model ProductDescription {
   id        String  @id @default(uuid())
   productId String  @unique
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
- 
-  generalDescription  String @default(" ")
-  caracteristics String @default("[]")
- 
+
+  generalDescription String @default(" ")
+  caracteristics     String @default("[]")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-
 
 model Product {
   id         String   @id @default(uuid())
@@ -124,20 +145,20 @@ model Product {
   categoryId String
   category   Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
 
-  name        String
-  price       Decimal
-  brandId     String
-  brand       Brand       @relation(fields: [brandId], references: [id])
+  name    String
+  price   Decimal
+  brandId String
+  brand   Brand   @relation(fields: [brandId], references: [id])
 
-  orderItems  OrderItem[]
+  orderItems OrderItem[]
 
   isFeatured Boolean @default(false)
   isArchived Boolean @default(false)
 
   productDescription ProductDescription?
-  stock  Stock?
-  colors Color[]
-  images Image[]
+  stock              Stock?
+  colors             Color[]
+  images             Image[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

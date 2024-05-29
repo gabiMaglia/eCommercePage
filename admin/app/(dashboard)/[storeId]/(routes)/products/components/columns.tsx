@@ -56,7 +56,7 @@ export const columns: ColumnDef<ProductColumn>[] = [
         >
           <div
             style={{ backgroundColor: color }}
-            className="w-5 h-5 rounded-full border-black border-2"
+            className="w-5 h-5 rounded-full shadow-sm filter border-slate-600 border-2"
           />
         </div>
       ));
