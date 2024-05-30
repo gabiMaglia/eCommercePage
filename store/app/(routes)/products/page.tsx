@@ -6,10 +6,10 @@ import ProductList from "@/components/product-list"
 import Container from "@/components/ui/container"
 
 
-export const revalidate = 0
+
 
 const HomePage =  async() => {
-    const {products} = await getProducts({isFeatured:true});
+    const products = await getProducts({isFeatured:true});
     const billboards = await getBillboards()
     const firstBill = billboards[0]
     const billboard = await getBillboardbyId(firstBill.id)
@@ -22,8 +22,9 @@ const HomePage =  async() => {
             </div>
             
             <div className="flex flex-col gap-y-8 px-4 sm:px-6 lg:px-8">
-                <ProductList title="Featured Products" items={products}/>
-    
+                <ProductList title="Featured Products" products={products} >
+                    
+                </ProductList>
             </div>
         </Container>
     )

@@ -20,6 +20,7 @@ const ProductPage: React.FC<ProductPageProps> = async(
     const sugestedProducts = await getProducts({
         categoryId: product?.category?.id
     })
+
     return ( 
         <div className="bg-white">
             <Container>
@@ -31,7 +32,7 @@ const ProductPage: React.FC<ProductPageProps> = async(
                         </div>
                     </div>
                     <hr className="my-10" />
-                    <ProductList title="Related items" items={sugestedProducts} />
+                    <ProductList title="Related items" products={sugestedProducts} />
 
               
                 </div>

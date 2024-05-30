@@ -5,6 +5,7 @@ import { Urbanist } from "next/font/google";
 
 import Footer from "@/components/Footer";
 import Navbar from "@/components/navbar";
+import { ReduxProvider } from "@/redux/provider";
 
 const font = Urbanist({ subsets: ["latin"] });
 
@@ -21,10 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={font.className}>
-        <Navbar />
-        {children}
-        <Footer /> 
-        </body>
+        <ReduxProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </ReduxProvider>
+      </body>
     </html>
   );
 }

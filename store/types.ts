@@ -51,3 +51,7 @@ export interface Color {
     value: string
     quantity:number
 }
+export interface Response{
+    state: boolean
+    message: any[]
+}

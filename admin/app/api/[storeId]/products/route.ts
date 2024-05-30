@@ -115,11 +115,11 @@ export async function GET(
                 brand: true,
                 stock: true,
                 colors: true,
-                // productDescription: true
+                productDescription: true
             }
         });
         
-        return NextResponse.json(products);
+        return NextResponse.json({succes: true, products});
 
     } catch (error) {
         console.log("PRODUCT_GET", error)
