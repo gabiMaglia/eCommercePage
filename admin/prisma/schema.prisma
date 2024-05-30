@@ -7,6 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String   @id @default(uuid())
+  clerkId       String   @unique
+  email         String   @unique
+  name          String? 
+  phone         String?
+  address       Address?
+  orders        Order[]  @relation("UserToOrder")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([clerkId])
+  @@index([email])
+}
+model Address {
+  id     String @id @default(uuid())
+  user   User  @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  country String
+  state   String
+  address String
+  zipCode String
+  number  String
+
+}
 model Store {
   id     String @id @default(uuid())
   name   String
@@ -171,17 +198,20 @@ model Product {
 }
 
 model Order {
-  id         String      @id @default(uuid())
-  storeId    String // Foreign Key to Store
-  store      Store       @relation("StoreToOrder", fields: [storeId], references: [id])
+  id         String    @id @default(uuid())
+  storeId    String    // Foreign Key to Store
+  store      Store     @relation("StoreToOrder", fields: [storeId], references: [id])
+  userId     String    // Foreign Key to User
+  user       User      @relation("UserToOrder", fields: [userId], references: [id])
   orderItems OrderItem[] // Relation to OrderItem model
-  isPaid     Boolean     @default(false)
-  phone      String      @default("")
-  address    String      @default("")
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  isPaid     Boolean   @default(false)
+  phone      String    @default("")
+  address    String    @default("")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([storeId])
+  @@index([userId])
 }
 
 model OrderItem {

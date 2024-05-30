@@ -4,7 +4,6 @@ import { NextResponse } from "next/server"
 
 
 export async function GET(_req: Request, { params }: { params: { productId: string } }) {
-console.log('pase')
     try {
 
         if (!params.productId) return new NextResponse('productId is required', { status: 400 })

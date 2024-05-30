@@ -2,8 +2,13 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import getProducts from "@/actions/get-products";
 import { Product, Response } from "@/types";
 
+interface Query {
+    categoryId?:string
+    brandId?:string
+    isFeatured?:boolean
+}
 // GET
-export const getProductsAsync = createAsyncThunk<Product[], void, { rejectValue: string }>(
+export const getProductsAsync = createAsyncThunk<Product[], Query, { rejectValue: string }>(
   "prod/getProducts",
   async (_, { rejectWithValue }) => {
     try {
