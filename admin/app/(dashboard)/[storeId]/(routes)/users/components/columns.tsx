@@ -3,68 +3,39 @@
 import { ColumnDef } from "@tanstack/react-table";
 import CellAcction from "./cell-action";
 
-
-export type ProductColumn = {
+export type UserColumn = {
   id: string;
-  name: string;
-  price: string;
-  category: string;
-  quantity: number;
-  color: string[];
-  isFeatured: boolean;
-  isArchived: boolean;
-  createdAt: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  isBanned: boolean;
+  createdAt: string; 
+  clerkId: string;
+  address: any; 
+  orders: any[]; 
+  updatedAt: string; 
 };
 
-export const columns: ColumnDef<ProductColumn>[] = [
+export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "name",
     header: "Name",
   },
   {
-    accessorKey: "isArchived",
-    header: "Archived",
+    accessorKey: "email",
+    header: "Email",
   },
   {
-    accessorKey: "isFeatured",
-    header: "Featured",
-  },
-  {
-    accessorKey: "price",
-    header: "Price",
-  },
-  {
-    accessorKey: "quantity",
-    header: "Stock",
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
-  },
-  {
-    accessorKey: "brand",
-    header: "Brand",
-  },
-  {
-    accessorKey: "color",
-    header: "Color/s",
-    cell: ({ row }) => {
-      return row.original.color.map((color: string) => (
-        <div
-          key={Math.random()+Date.now()}
-          className=" border-slate-700 py-2 inline-flex pl-1 pr-1 border-double "
-        >
-          <div
-            style={{ backgroundColor: color }}
-            className="w-5 h-5 rounded-full shadow-sm filter border-slate-600 border-2"
-          />
-        </div>
-      ));
-    },
+    accessorKey: "phone",
+    header: "Phone",
   },
   {
     accessorKey: "createdAt",
     header: "Created at",
+  },
+  {
+    accessorKey: "isBanned",
+    header: "is Banned",
   },
   {
     accessorKey: "actions",

@@ -11,7 +11,7 @@ const ProductList: React.FC<ProductListProps> = ({ title, items }) => {
     <div className="space-y-4">
       <h3 className="font-bold text-3xl">{title}</h3>
       {items.length === 0 && <NoResult />}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grids-cols-3 lg:grids-cols-4 gap-4 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grids-cols-3 lg:grids-cols-4 gap-4">
         {items.map((item) => (
           <div key={item.id}>
             <ProductCard data={item} />

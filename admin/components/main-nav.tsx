@@ -37,7 +37,7 @@ export function MainNav({
       active: pathname === `/${params.storeId}/products`,
     },
     {
-      href: `/${params.storeId}/products`,
+      href: `/${params.storeId}/users`,
       label: "Users",
       active: pathname === `/${params.storeId}/users`,
     },

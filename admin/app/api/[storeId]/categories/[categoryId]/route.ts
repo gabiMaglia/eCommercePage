@@ -11,6 +11,9 @@ export async function GET(_req: Request, { params }: { params: { categoryId: str
             where: {
                 id: params.categoryId,
             },
+            include: {
+                promoImages: true
+            }
         })
 
         return NextResponse.json(category)

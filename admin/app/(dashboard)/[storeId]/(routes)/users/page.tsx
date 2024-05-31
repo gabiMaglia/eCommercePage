@@ -1,49 +1,39 @@
-import {format} from 'date-fns'
-
+import { format } from 'date-fns';
 import prismadb from "@/lib/prismadb";
-import { formatter } from '@/lib/utils';
-import { ProductColumn } from './components/columns';
-import { ProductClient } from './components/client';
+import { UserColumn } from './components/columns';
+import { UserClient } from './components/client';
 
-const ProductsPage = async ({
-    params
-}: {params: {storeId: string}}) => {
-    const products = await prismadb.product.findMany({
-        where: {
-            storeId: params.storeId
-        },
-        include: {
-            category: true,
-            brand: true,
-            stock: true,
-            colors: true,
-            
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    })
+const UserPage = async ({}: {}) => {
+  const users = await prismadb.user.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      address: true,
+      orders: true,
+    },
+  });
 
-    const formattedProducts: ProductColumn[] = products.map((item) => ({
-        id: item.id,
-        name: item.name,
-        isFeatured: item.isFeatured,
-        isArchived: item.isArchived,
-        price: formatter.format(item.price.toNumber()),
-        quantity: Number(item.stock?.quantity),
-        category: item.category.name,
-        brand: item.brand.name,
-        color: item.colors.map(e => e.value ),
-        createdAt: format(item.createdAt, "MMMM do, yyyy")   
-    }))
-  
-    return ( 
-        <div className="flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
-                <ProductClient data={formattedProducts} />
-            </div>
-        </div>
-     );
-}
- 
-export default ProductsPage;
+  const formattedUser: UserColumn[] = users.map((item) => ({
+    id: item.id,
+    email: item.email,
+    name: item.name,
+    phone: item.phone,
+    isBanned: item.isBanned,
+    createdAt: format(new Date(item.createdAt), 'yyyy-MM-dd HH:mm:ss'),
+    clerkId: item.clerkId,
+    address: item.address, 
+    orders: item.orders,
+    updatedAt: format(new Date(item.updatedAt), 'yyyy-MM-dd HH:mm:ss'),
+  }));
+
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <UserClient data={formattedUser} />
+      </div>
+    </div>
+  );
+};
+
+export default UserPage;

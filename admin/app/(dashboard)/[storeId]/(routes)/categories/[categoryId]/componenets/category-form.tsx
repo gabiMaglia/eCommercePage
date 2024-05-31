@@ -32,24 +32,22 @@ import {
 } from "@/components/ui/select";
 import ImageUpload from "@/components/ui/image-upload";
 
-
 const formSchema = z.object({
   name: z.string().min(1),
   billboardId: z.string().min(1),
   image: z.string().min(1),
+  promoImages: z.array(z.object({ url: z.string() })),
 });
 type CategoryFormValues = z.infer<typeof formSchema>;
 
 interface CategoryFormProps {
-  initialData: Category | null;
+  initialData: any | null;
   billboards: Billboard[];
- 
 }
 
 export const CategoryForm: React.FC<CategoryFormProps> = ({
   initialData,
   billboards,
-  
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -62,12 +60,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const toastMessage = initialData ? "Category Updated" : "Category Created";
   const action = initialData ? "Save changes" : "Create";
 
+  console.log(initialData);
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: "",
       billboardId: "",
       image: "",
+      promoImages: [],
     },
   });
 
@@ -137,6 +137,30 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         >
           <FormField
             control={form.control}
+            name="promoImages"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Promotional Images</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field?.value?.map((image) => image.url) || []}
+                    disable={loading}
+                    onChange={(url) =>
+                      field.onChange([...field.value, { url }])
+                    }
+                    onRemove={(url) =>
+                      field.onChange(
+                        field.value.filter((current) => current.url !== url)
+                      )
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="image"
             render={({ field }) => (
               <FormItem>
@@ -193,7 +217,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                    {billboards.length === 0 ? (
+                      {billboards.length === 0 ? (
                         <SelectItem value="0" disabled>
                           No Billboards found
                         </SelectItem>
@@ -204,7 +228,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                           </SelectItem>
                         ))
                       )}
-                    
                     </SelectContent>
                   </Select>
                   <FormMessage />

@@ -2,6 +2,7 @@ import Navbar from "@/components/navbar";
 import prismadb from "@/lib/prismadb";
 import { auth, currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default async function DashboardLayout({
   children,
@@ -12,7 +13,6 @@ export default async function DashboardLayout({
 }) {
   const { userId } = auth();
   const clerkUserData = await currentUser();
-  console.log(clerkUserData);
   if (!userId) redirect("/sign-in");
 
   let user = await prismadb.user.findFirst({
@@ -28,7 +28,6 @@ export default async function DashboardLayout({
         email: clerkUserData?.emailAddresses[0]?.emailAddress || "",
         name: `${clerkUserData?.firstName || ""} ${clerkUserData?.lastName || ""}`,
         phone: "",
-        // Aquí creamos la dirección asociada al usuario
         address: {
           create: {
             country: "",
@@ -40,10 +39,10 @@ export default async function DashboardLayout({
         },
       },
       include: {
-        address: true, // Incluir la dirección creada en la respuesta
+        address: true, 
       },
     });
-    console.log(user)
+
   }
 
   const store = await prismadb.store.findFirst({
