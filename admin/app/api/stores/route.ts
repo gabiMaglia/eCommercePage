@@ -1,7 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs"
 import { NextResponse } from "next/server"
-
 export async function POST(
     req: Request
 ) {
@@ -19,6 +18,22 @@ export async function POST(
                 userId
             }
         });
+        return NextResponse.json(store)
+
+    } catch (error) {
+        console.log("STORE_POST", error)
+        return new NextResponse("internal Error", { status: 500 })
+    }
+
+}
+export async function GET(
+    req: Request
+) {
+    try {
+        console.log('llego')
+        const store = (await prismadb.store.findMany({
+      
+        }));
         return NextResponse.json(store)
 
     } catch (error) {
