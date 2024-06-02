@@ -7,9 +7,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProductColumn } from "./columns";
+import { UserColumn } from "./columns";
 import { Button } from "@/components/ui/button";
-import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Copy, AlertCircle, MoreHorizontal, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useParams,useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ import axios from "axios";
 import { AlertModal } from "@/components/models/alet-modal";
 
 interface CellActionProps {
-  data: ProductColumn;
+  data: UserColumn;
 }
 
 const CellAcction: React.FC<CellActionProps> = ({ data }) => {
@@ -36,7 +36,7 @@ const CellAcction: React.FC<CellActionProps> = ({ data }) => {
     const onDelete = async () => {
         try {
           setloading(true);
-          await axios.delete(`/api/${params.storeId}/products/${data.id}`);
+          await axios.delete(`/api/${params.storeId}/users/${data.id}`);
           router.refresh();
           toast.success("Product Deleted");
         } catch (error) {
@@ -72,9 +72,10 @@ const CellAcction: React.FC<CellActionProps> = ({ data }) => {
           <Copy className="mr-2 h-4 w-4" />
           Copy Id
         </DropdownMenuItem>
+        {/* TODO  */}
         <DropdownMenuItem onClick={() => {router.push(`/${params.storeId}/products/${data.id}`)}}>
-          <Edit className="mr-2 h-4 w-4" />
-          Update
+          <AlertCircle className="mr-2 h-4 w-4" />
+          Toogle Ban
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setOpen(true)}>
           <Trash className="mr-2 h-4 w-4" />

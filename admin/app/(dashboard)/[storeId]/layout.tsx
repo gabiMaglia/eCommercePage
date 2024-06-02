@@ -1,5 +1,6 @@
 import Navbar from "@/components/navbar";
 import prismadb from "@/lib/prismadb";
+import { ensureUserExists } from "@/lib/user-utils";
 import { auth, currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
@@ -14,36 +15,8 @@ export default async function DashboardLayout({
   const { userId } = auth();
   const clerkUserData = await currentUser();
   if (!userId) redirect("/sign-in");
+  const user = await ensureUserExists(userId, clerkUserData)
 
-  let user = await prismadb.user.findFirst({
-    where: {
-      clerkId: userId,
-    },
-  });
-
-  if (!user) {
-    user = await prismadb.user.create({
-      data: {
-        clerkId: userId,
-        email: clerkUserData?.emailAddresses[0]?.emailAddress || "",
-        name: `${clerkUserData?.firstName || ""} ${clerkUserData?.lastName || ""}`,
-        phone: "",
-        address: {
-          create: {
-            country: "",
-            state: "",
-            address: "",
-            zipCode: "",
-            number: "",
-          },
-        },
-      },
-      include: {
-        address: true, 
-      },
-    });
-
-  }
 
   const store = await prismadb.store.findFirst({
     where: {
