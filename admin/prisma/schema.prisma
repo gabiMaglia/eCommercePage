@@ -25,12 +25,12 @@ model User {
 }
 model Address {
   id     String @id @default(uuid())
-  user   User  @relation(fields: [userId], references: [id])
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
 
   country String
   state   String
-  address String
+  street String
   zipCode String
   number  String
 
@@ -55,7 +55,7 @@ model Store {
 
 model ContactData {
   id      String @id @default(uuid())
-  store   Store  @relation(fields: [storeId], references: [id])
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId String @unique
 
   phone      String

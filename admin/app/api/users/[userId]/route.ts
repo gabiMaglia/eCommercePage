@@ -2,20 +2,19 @@ import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server"
 
-export async function DELETE(_req: Request, {params}: {params: {id: string}} ) {
+export async function DELETE(_req: Request, {params}: {params: {userId: string}} ) {
     try {
       const { userId } = auth()
       if (!userId) return new NextResponse("Unautorized", { status: 401 });
-      if (!params.id) return new NextResponse('user id is required', {status: 400})
-        
-      const store = await prismadb.store.deleteMany({
+      if (!params.userId) return new NextResponse('user id is required', {status: 400})
+    const user = await prismadb.user.delete({
           where: {
-              id: params.id,
+              id: params.userId,
           },
       })
-      return NextResponse.json(store)
+      return NextResponse.json("User deleted")
     } catch (error) {
-      console.log("STORE_DELETE", error)
+      console.log("USER_DELETE", error)
       return new NextResponse("internal Error", { status: 500 })
     }
   }

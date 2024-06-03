@@ -37,7 +37,7 @@ const CellAcction: React.FC<CellActionProps> = ({ data }) => {
       setloading(true);
       await axios.delete(`/api/users/${id}`);
       router.refresh();
-      toast.success("Product Deleted");
+      toast.success("User Deleted");
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
