@@ -3,7 +3,7 @@ import prismadb from "@/lib/prismadb";
 import { ensureUserExists } from "@/lib/user-utils";
 import { auth, currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import toast from "react-hot-toast";
+
 
 export default async function DashboardLayout({
   children,
