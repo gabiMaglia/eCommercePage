@@ -7,9 +7,9 @@ export async function POST(
     { params }: { params: { storeId: string } }
 ) {
     try {
+        console.log('llego')
         const { userId } = auth();
         if (!userId) return new NextResponse("Unauthorized", { status: 401 });
-
         const body = await req.json();
         const { promoImages, name, image, billboardId } = body;
         console.log( promoImages, name, image, billboardId )

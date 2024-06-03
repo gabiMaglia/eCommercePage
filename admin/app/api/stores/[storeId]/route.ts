@@ -79,3 +79,28 @@ export async function DELETE(_req: Request, {params}: {params: {storeId: string}
       return new NextResponse("internal Error", { status: 500 })
     }
   }
+
+  export async function GET(
+    req: Request, {params}: {params: {storeId: string}} 
+) {
+    try {
+        const { userId } = auth()
+        if (!userId) return new NextResponse("Unautorized", { status: 401 });
+
+        const stores = await prismadb.store.findMany({
+            where: {
+                id : params.storeId
+            },
+            include: {
+              contactData: true,
+              brands: true
+            }
+        });
+        return NextResponse.json(stores)
+
+    } catch (error) {
+        console.log("STORE_POST", error)
+        return new NextResponse("internal Error", { status: 500 })
+    }
+
+}

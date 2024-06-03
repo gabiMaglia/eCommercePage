@@ -16,7 +16,7 @@ export const ensureUserExists = async (userId: string, clerkUserData: any) => {
           create: {
             country: "",
             state: "",
-            address: "",
+            street: "",
             zipCode: "",
             number: "",
           },

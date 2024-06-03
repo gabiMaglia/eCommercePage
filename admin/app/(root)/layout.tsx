@@ -1,5 +1,6 @@
 import prismadb from "@/lib/prismadb";
-import { auth } from "@clerk/nextjs";
+import { ensureUserExists } from "@/lib/user-utils";
+import { auth, currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 export default async function SetupLayout(
@@ -14,7 +15,9 @@ export default async function SetupLayout(
         }
     })
     if(store) redirect(`/${store.id}`)
-
+     const clerkUserData = await currentUser();
+   
+    await ensureUserExists(userId, clerkUserData)
     return(
         <>
         {children}

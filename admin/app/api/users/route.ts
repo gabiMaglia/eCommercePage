@@ -21,7 +21,7 @@ export async function POST(req: Request) {
                         create: {
                             country: "",
                             state: "",
-                            address: "",
+                            street: "",
                             zipCode: "",
                             number: "",
                         },

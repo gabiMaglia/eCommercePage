@@ -60,7 +60,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const toastMessage = initialData ? "Category Updated" : "Category Created";
   const action = initialData ? "Save changes" : "Create";
 
-  console.log(initialData);
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -74,7 +73,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const onSubmit = async (data: CategoryFormValues) => {
     try {
       setloading(true);
-      if (initialData) {
+      if (initialData.name) {
         await axios.patch(
           `/api/${params.storeId}/categories/${params.categoryId}`,
           data
