@@ -39,3 +39,12 @@ export async function POST(req: Request) {
         return new NextResponse("internal Error", { status: 500 });
     }
 }
+export async function GET(req: Request) {
+    try {
+        const user = await prismadb.user.findMany()
+        return NextResponse.json(user);
+    } catch (error) {
+        console.log("USER_GET", error);
+        return new NextResponse("internal Error", { status: 500 });
+    }
+}
