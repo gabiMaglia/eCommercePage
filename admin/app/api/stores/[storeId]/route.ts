@@ -84,9 +84,6 @@ export async function DELETE(_req: Request, {params}: {params: {storeId: string}
     req: Request, {params}: {params: {storeId: string}} 
 ) {
     try {
-        const { userId } = auth()
-        if (!userId) return new NextResponse("Unautorized", { status: 401 });
-
         const stores = await prismadb.store.findMany({
             where: {
                 id : params.storeId
