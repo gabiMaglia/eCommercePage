@@ -7,7 +7,6 @@ export async function POST(
     { params }: { params: { storeId: string } }
 ) {
     try {
-        console.log('llego')
         const { userId } = auth();
         if (!userId) return new NextResponse("Unauthorized", { status: 401 });
         const body = await req.json();
@@ -56,9 +55,7 @@ export async function GET(
     { params }: { params: { storeId: string } }
 ) {
     try {
-
         if (!params.storeId) return new NextResponse("StoreId is required", { status: 400 });
-
         const categories = await prismadb.category.findMany({
             where: {
                 storeId: params.storeId
@@ -67,7 +64,6 @@ export async function GET(
                 promoImages: true,
             }
         });
-
         return NextResponse.json(categories);
 
     } catch (error) {

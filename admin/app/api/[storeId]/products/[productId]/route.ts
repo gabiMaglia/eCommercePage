@@ -97,9 +97,9 @@ export async function PATCH(req: Request, { params }: { params: { storeId: strin
                     }
                 },
                 colors: {
-                    create: colors.map((color: { value: string; stock: { toString: () => string; }; }) => ({
+                    create: colors.map((color: { value: string; stock:number }) => ({
                       value: color.value,
-                      stock: color.stock.toString()
+                      stock: color.stock
                     })),
                   },
                   productDescription: {

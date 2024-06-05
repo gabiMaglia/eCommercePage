@@ -58,9 +58,9 @@ export async function POST(
                     }
                 },
                 colors: {
-                    create: colors.map((color: { value: string; stock: { toString: () => string; }; }) => ({
+                    create: colors.map((color: { value: string; stock: string}) => ({
                         value: color.value,
-                        stock: color.stock.toString()
+                        stock: parseInt(color.stock)
                     })),
                 },
                 productDescription: {

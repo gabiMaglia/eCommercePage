@@ -47,7 +47,7 @@ const formSchema = z.object({
   colors: z.array(
     z.object({
       value: z.string(),
-      stock: z.string(),
+      stock: z.number(),
     })
   ),
   generalDescription: z.string(),
@@ -166,10 +166,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     const colorsData = colorArr.map((color: string, index: number) => ({
       value: color,
-      stock: stockPerColorArr[index].toString(),
+      stock: stockPerColorArr[index],
     }));
     data = { ...data, colors: colorsData };
-
     data = {
       ...data,
       generalDescription: data.generalDescription,
@@ -487,8 +486,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      
-                    {brand.length === 0 ? (
+                      {brand.length === 0 ? (
                         <SelectItem value="0" disabled>
                           No Brands found
                         </SelectItem>
