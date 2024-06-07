@@ -1,13 +1,17 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
+
+interface MainNavProps extends React.HTMLAttributes<HTMLElement> {
+  handleNav: () => void;
+}
+
 export function MainNav({
   className,
+  handleNav,
   ...props
-}: React.HTMLAttributes<HTMLElement>) {
+}: MainNavProps) {
   const pathname = usePathname();
   const params = useParams();
   const routes = [
@@ -52,14 +56,16 @@ export function MainNav({
       active: pathname === `/${params.storeId}/settings`,
     },
   ];
+
   return (
-    <nav className={cn("flex items-center space-x-4 lg:space-x-6", className)}>
+    <nav className={cn("flex flex-col lg:flex-row items-center space-x-4 lg:space-x-6", className)} {...props}>
       {routes.map((route) => (
         <Link
+          onClick={handleNav}
           key={route.href}
           href={route.href}
           className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
+            "m-0 break-words w-full text-sm font-medium transition-colors hover:text-primary",
             route.active
               ? "text-black dark:text-white"
               : "text-muted-foreground"

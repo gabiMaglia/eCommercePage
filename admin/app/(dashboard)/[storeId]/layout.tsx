@@ -1,7 +1,7 @@
 import Navbar from "@/components/navbar";
 import prismadb from "@/lib/prismadb";
-import { ensureUserExists } from "@/lib/user-utils";
-import { auth, currentUser } from "@clerk/nextjs";
+
+import { auth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 
@@ -23,11 +23,15 @@ export default async function DashboardLayout({
   if (!store) {
     redirect("/");
   }
-
+  const stores = await prismadb.store.findMany({
+    where: {
+      userId,
+    },
+  });
   return (
     <>
       <div>
-        <Navbar />
+        <Navbar stores={stores} />
       </div>
       {children}
     </>
