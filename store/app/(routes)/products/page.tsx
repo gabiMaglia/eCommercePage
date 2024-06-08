@@ -1,3 +1,5 @@
+// 'use client'
+
 import getBillboards from "@/actions/get-billboards"
 import  getBillboardbyId from "@/actions/get-billboardById"
 import getProducts from "@/actions/get-products"
@@ -13,8 +15,7 @@ const HomePage =  async() => {
     const billboards = await getBillboards()
     const firstBill = billboards[0]
     const billboard = await getBillboardbyId(firstBill.id)
-    
-  
+
     return(
         <Container>
             <div className="space-y-10 pb-10">

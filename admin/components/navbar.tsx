@@ -23,7 +23,7 @@ const Navbar = (params: { stores: Store[] }) => {
 
   return (
     <div className="border-b">
-      <div className="flex h-16 items-center justify-between px-4">
+      <div className="flex h-16 items-center justify-between  ">
         <StoreSwitcher items={params.stores} />
         <div className="lg:flex hidden items-center">
           <MainNav handleNav={handleNav} className="mx-6" />

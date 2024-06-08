@@ -200,7 +200,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               name="billboardId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel> Bilboard </FormLabel>
+                  <FormLabel> Group </FormLabel>
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
@@ -211,7 +211,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                       <SelectTrigger>
                         <SelectValue
                           defaultValue={field.value}
-                          placeholder="Select a Billboard"
+                          placeholder="Select a Group"
                         ></SelectValue>
                       </SelectTrigger>
                     </FormControl>

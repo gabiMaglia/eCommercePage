@@ -29,7 +29,7 @@ export const columns: ColumnDef<CategoryColumn>[] = [
   },
   {
     accessorKey: "billboard",
-    header: "Billboard",
+    header: "Group",
     cell: ({ row }) => row.original.billboardLabel,
   },
   {

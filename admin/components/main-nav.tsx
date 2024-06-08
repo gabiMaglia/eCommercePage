@@ -22,7 +22,7 @@ export function MainNav({
     },
     {
       href: `/${params.storeId}/billboards`,
-      label: "Billboards",
+      label: "Groups",
       active: pathname === `/${params.storeId}/billboards`,
     },
     {
@@ -37,7 +37,7 @@ export function MainNav({
     },
     {
       href: `/${params.storeId}/products`,
-      label: "Product",
+      label: "Products",
       active: pathname === `/${params.storeId}/products`,
     },
     {
@@ -65,7 +65,7 @@ export function MainNav({
           key={route.href}
           href={route.href}
           className={cn(
-            "m-0 break-words w-full text-sm font-medium transition-colors hover:text-primary",
+            "break-words w-full text-sm font-medium transition-colors hover:text-primary",
             route.active
               ? "text-black dark:text-white"
               : "text-muted-foreground"

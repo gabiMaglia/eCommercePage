@@ -18,7 +18,7 @@ export const columns: ColumnDef<BillboardColumn>[] = [
     accessorKey: "image",
     header: "Imagen",
     cell: ({ row }) => {
-     console.log(row.original)
+     
      
      return <Avatar>
         <AvatarImage src={row.original.imageUrl} />

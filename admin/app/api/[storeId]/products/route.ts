@@ -33,11 +33,7 @@ export async function POST(
 
         if (!storeByUserId) return new NextResponse("Unauthorized", { status: 403 });
 
-
         const parsedCaracteristics = JSON.stringify(characteristics)
-
-
-
 
         const product = await prismadb.product.create({
             data: {
@@ -58,7 +54,7 @@ export async function POST(
                     }
                 },
                 colors: {
-                    create: colors.map((color: { value: string; stock: string}) => ({
+                    create: colors.map((color: { value: string; stock: string }) => ({
                         value: color.value,
                         stock: parseInt(color.stock)
                     })),
@@ -93,15 +89,17 @@ export async function GET(
 ) {
 
     try {
-       
         const { searchParams } = new URL(req.url)
+        const categoryGroupId = searchParams.get('categoryGroupId') || undefined
         const categoryId = searchParams.get('categoryId') || undefined
         const brandId = searchParams.get('brandId') || undefined
         const isFeatured = searchParams.get('isFeaturedId') || undefined
-
         if (!params.storeId) return new NextResponse("StoreId is required", { status: 400 });
 
-        const products = await prismadb.product.findMany({
+        console.log(categoryGroupId)
+        
+
+        let products = await prismadb.product.findMany({
             where: {
                 storeId: params.storeId,
                 categoryId,
@@ -118,8 +116,13 @@ export async function GET(
                 productDescription: true
             }
         });
-        
-        return NextResponse.json({succes: true, products});
+
+        if (categoryGroupId) {
+            products = products.filter(e => e.category.billboardId === categoryGroupId)
+
+        }
+        console.log(products)
+        return NextResponse.json({ succes: true, products });
 
     } catch (error) {
         console.log("PRODUCT_GET", error)
