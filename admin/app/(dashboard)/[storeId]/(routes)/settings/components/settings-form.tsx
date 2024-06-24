@@ -49,8 +49,6 @@ const formSchema = z.object({
   phone: z.string().transform((val) => val.toString()),
   email: z.string().email(),
   country: z.string().min(1),
-  openTime: z.string().min(1),
-  closeTime: z.string().min(1),
   aboutUs: z.string().min(1),
   state: z.string().min(1),
   address: z.string().min(1),
@@ -58,6 +56,15 @@ const formSchema = z.object({
   facebook: z.string().optional(),
   instagram: z.string().optional(),
   mercadoLibre: z.string().optional(),
+  shifts: z
+    .array(
+      z.object({
+        openTime: z.string().min(1),
+        closeTime: z.string().min(1),
+      })
+    )
+    .min(1)
+    .max(4),
 });
 
 type SettingsFormValues = z.infer<typeof formSchema>;
@@ -71,24 +78,30 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
 
   const { contactData } = initialData;
 
+  const defaultShifts = contactData?.storeHours
+    ? contactData.storeHours.split(", ").map((shift) => {
+        const [openTime, closeTime] = shift.split(" ");
+        return { openTime, closeTime };
+      })
+    : [{ openTime: "", closeTime: "" }];
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       ...initialData,
       ...contactData,
-      openTime: contactData?.storeHours
-        ? contactData.storeHours.split(" ")[0]
-        : "",
-      closeTime: contactData?.storeHours
-        ? contactData.storeHours.split(" ")[1]
-        : "",
+      shifts: defaultShifts,
     },
   });
+
+  const [shiftCount, setShiftCount] = useState(defaultShifts.length);
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
       setloading(true);
-      const storeHours = `${data.openTime} ${data.closeTime}`;
+      const storeHours = data.shifts
+        .map((shift) => `${shift.openTime} ${shift.closeTime}`)
+        .join(", ");
       await axios.patch(`/api/stores/${params.storeId}`, {
         ...data,
         storeHours,
@@ -142,7 +155,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
           className="space-y-8 w-full"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div className="grid  xl:grid-cols-3 gap-8 md:grid-cols-2 grid-cols-1">
+          <div className="grid xl:grid-cols-3 gap-8 md:grid-cols-2 grid-cols-1">
             <span className="flex-col">
               <FormField
                 control={form.control}
@@ -186,168 +199,6 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                         type="email"
                         disabled={loading}
                         placeholder="Email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="aboutUs"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>About the store</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        disabled={loading}
-                        placeholder="Short Description"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex gap-3 w-100%">
-                <FormField
-                  control={form.control}
-                  name="openTime"
-                  render={({ field }) => (
-                    <FormItem className="flex-col w-[100%]">
-                      <FormLabel>Open Time</FormLabel>
-                      <FormControl >
-                        <Input className="flex justify-center"  type="time" disabled={loading} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="closeTime"
-                  render={({ field }) => (
-                    <FormItem className="flex-col w-[100%]">
-                      <FormLabel>Close Time</FormLabel>
-                      <FormControl>
-                        <Input className="flex justify-center"  type="time" disabled={loading} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-              </div>
-            </span>
-            <span className="flex-col">
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Country</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-100% justify-between align-baseline",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? countryList.find(
-                                  (country) => country === field.value
-                                )
-                              : "Select country"}
-                            <CarrotIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search country..."
-                            className="h-9"
-                          />
-                          <CommandEmpty>No country found.</CommandEmpty>
-                          <CommandGroup>
-                            {countryList.map((country) => (
-                              <CommandItem
-                                value={country}
-                                key={country}
-                                onSelect={() => {
-                                  form.setValue("country", country);
-                                }}
-                              >
-                                {country}
-                                <CheckIcon
-                                  className={cn(
-                                    "ml-auto h-4 w-4",
-                                    country === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="State"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Address"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="string"
-                        disabled={loading}
-                        placeholder="Number"
                         {...field}
                       />
                     </FormControl>
@@ -412,7 +263,208 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                 )}
               />
             </span>
+            <span className="fex-col">
+              <div className="flex flex-col">
+                <FormLabel>Number of Shifts</FormLabel>
+                <FormControl>
+                  <select
+                    className="p-2 border rounded bg-inherit"
+                    value={shiftCount}
+                    onChange={(e) => setShiftCount(Number(e.target.value))}
+                    disabled={loading}
+                  >
+                    {[1, 2, 3, 4].map((count) => (
+                      <option
+                        className=" bg-white border-opacity-0"
+                        key={count}
+                        value={count}
+                      >
+                        {count}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+              </div>
+              {Array.from({ length: shiftCount }).map((_, index) => (
+                <div className="flex gap-3 w-100%" key={index}>
+                  <FormField
+                    control={form.control}
+                    name={`shifts.${index}.openTime`}
+                    render={({ field }) => (
+                      <FormItem className="flex-col w-[100%]">
+                        <FormLabel>Open Time {index + 1}</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="flex justify-center"
+                            type="time"
+                            disabled={loading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`shifts.${index}.closeTime`}
+                    render={({ field }) => (
+                      <FormItem className="flex-col w-[100%]">
+                        <FormLabel>Close Time {index + 1}</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="flex justify-center"
+                            type="time"
+                            disabled={loading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
+            </span>
           </div>
+
+          <div className="flex flex-row">
+            <span className="flex flex-col gap-3 w-[100%]">
+              <FormField
+                control={form.control}
+                name="aboutUs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>About the store</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        disabled={loading}
+                        placeholder="Short Description"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <span className="flex flex-row justify-between gap-3 w-[100%]">
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Country</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-100% justify-between align-baseline",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? countryList.find(
+                                    (country) => country === field.value
+                                  )
+                                : "Select country"}
+                              <CarrotIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search country..."
+                              className="h-9"
+                            />
+                            <CommandEmpty>No country found.</CommandEmpty>
+                            <CommandGroup>
+                              {countryList.map((country) => (
+                                <CommandItem
+                                  value={country}
+                                  key={country}
+                                  onSelect={() => {
+                                    form.setValue("country", country);
+                                  }}
+                                >
+                                  {country}
+                                  <CheckIcon
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      country === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State</FormLabel>
+                      <FormControl>
+                        <Input
+                          disabled={loading}
+                          placeholder="State"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          disabled={loading}
+                          placeholder="Address"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="string"
+                          disabled={loading}
+                          placeholder="Number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </span>
+            </span>
+          </div>
+
           <Button disabled={loading} className="ml-auto" type="submit">
             Save Changes
           </Button>
