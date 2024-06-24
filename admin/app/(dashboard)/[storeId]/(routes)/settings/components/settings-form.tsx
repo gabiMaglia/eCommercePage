@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { ContactData, Store } from "@prisma/client";
-import { CheckIcon, Trash, CarrotIcon } from "lucide-react";
+import { CheckIcon, Trash, CarrotIcon, ArrowBigDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -263,12 +263,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                 )}
               />
             </span>
-            <span className="fex-col">
-              <div className="flex flex-col">
-                <FormLabel>Number of Shifts</FormLabel>
+            <span className="flex flex-col gap-0 pt-2  relative max-h-[13.3rem] min-h-[13.3rem] overflow-scroll">
+              <FormItem className="flex flex-col w-[100%]">
+                <FormLabel className="pb-1">Number of Shifts</FormLabel>
                 <FormControl>
                   <select
-                    className="p-2 border rounded bg-inherit"
+                    className="p-2 border rounded bg-inherit sticky top-0"
                     value={shiftCount}
                     onChange={(e) => setShiftCount(Number(e.target.value))}
                     disabled={loading}
@@ -284,7 +284,8 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                     ))}
                   </select>
                 </FormControl>
-              </div>
+              </FormItem>
+
               {Array.from({ length: shiftCount }).map((_, index) => (
                 <div className="flex gap-3 w-100%" key={index}>
                   <FormField
@@ -347,68 +348,70 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                   </FormItem>
                 )}
               />
-              <span className="flex flex-row justify-between gap-3 w-[100%]">
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Country</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn(
-                                "w-100% justify-between align-baseline",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value
-                                ? countryList.find(
-                                    (country) => country === field.value
-                                  )
-                                : "Select country"}
-                              <CarrotIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[200px] p-0">
-                          <Command>
-                            <CommandInput
-                              placeholder="Search country..."
-                              className="h-9"
-                            />
-                            <CommandEmpty>No country found.</CommandEmpty>
-                            <CommandGroup>
-                              {countryList.map((country) => (
-                                <CommandItem
-                                  value={country}
-                                  key={country}
-                                  onSelect={() => {
-                                    form.setValue("country", country);
-                                  }}
-                                >
-                                  {country}
-                                  <CheckIcon
-                                    className={cn(
-                                      "ml-auto h-4 w-4",
-                                      country === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <span className="flex flex-row align-bottom justify-between gap-3 w-[100%]">
+                <div className="w-[100%]">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col align-bottom">
+                        <FormLabel className="mt-1 mb-2">Country</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  " flex-1 max-h-10 ",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? countryList.find(
+                                      (country) => country === field.value
+                                    )
+                                  : "Select country"}
+                                <ArrowBigDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                              <CommandInput
+                                placeholder="Search country..."
+                                className="h-9"
+                              />
+                              <CommandEmpty>No country found.</CommandEmpty>
+                              <CommandGroup>
+                                {countryList.map((country) => (
+                                  <CommandItem
+                                    value={country}
+                                    key={country}
+                                    onSelect={() => {
+                                      form.setValue("country", country);
+                                    }}
+                                  >
+                                    {country}
+                                    <CheckIcon
+                                      className={cn(
+                                        "ml-auto h-4 w-4",
+                                        country === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="state"
@@ -419,6 +422,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                         <Input
                           disabled={loading}
                           placeholder="State"
+                          // className="w-55"
                           {...field}
                         />
                       </FormControl>
